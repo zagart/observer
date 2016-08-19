@@ -1,4 +1,4 @@
-package webapp;
+package by.grodno.zagart.observer.webapp;
 
 public class MainTest {
 
