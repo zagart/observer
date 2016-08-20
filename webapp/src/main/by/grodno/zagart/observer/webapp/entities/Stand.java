@@ -3,7 +3,6 @@ package by.grodno.zagart.observer.webapp.entities;
 import by.grodno.zagart.observer.webapp.interfaces.Identifiable;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,22 +15,26 @@ public class Stand implements Identifiable<Long> {
 
     private Long id;
     private String number;
-    private ArrayList<Module> moduleList;
+    private String description;
+    private List<Module> moduleList;
 
-    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    @Column(name = "STAND_NUMBER")
+    @Column(name = "NUMBER")
     public String getNumber() { return number; }
     public void setNumber(String number) { this.number = number; }
 
+    @Column(name = "DESCRIPTION")
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
     @OneToMany(mappedBy = "stand", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     public List<Module> getModuleList() { return moduleList; }
-    public void setModuleList(ArrayList<Module> moduleList) { this.moduleList = moduleList; }
+    public void setModuleList(List<Module> moduleList) { this.moduleList = moduleList; }
 
     @Override
     public boolean equals(Object o) {
@@ -41,14 +44,15 @@ public class Stand implements Identifiable<Long> {
         Stand stand = (Stand) o;
 
         if (!id.equals(stand.id)) return false;
-        return number != null ? number.equals(stand.number) : stand.number == null;
-
+        if (number != null ? !number.equals(stand.number) : stand.number != null) return false;
+        return moduleList != null ? moduleList.equals(stand.moduleList) : stand.moduleList == null;
     }
 
     @Override
     public int hashCode() {
         int result = id.hashCode();
         result = 31 * result + (number != null ? number.hashCode() : 0);
+        result = 31 * result + (moduleList != null ? moduleList.hashCode() : 0);
         return result;
     }
 

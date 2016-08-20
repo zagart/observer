@@ -3,6 +3,7 @@ package by.grodno.zagart.observer.webapp.entities;
 import by.grodno.zagart.observer.webapp.interfaces.Identifiable;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -34,7 +35,7 @@ public class Module implements Identifiable<Long> {
     public String getStatusInfo() { return statusInfo; }
     public void setStatusInfo(String statusInfo) { this.statusInfo = statusInfo; }
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "STATUS_DATE")
     public Date getStatusChangeDate() { return statusChangeDate; }
     public void setStatusChangeDate(Date statusChangeDate) { this.statusChangeDate = statusChangeDate; }
@@ -51,17 +52,21 @@ public class Module implements Identifiable<Long> {
 
         Module module = (Module) o;
 
-        if (!name.equals(module.name)) return false;
+        if (!id.equals(module.id)) return false;
+        if (name != null ? !name.equals(module.name) : module.name != null) return false;
         if (statusInfo != null ? !statusInfo.equals(module.statusInfo) : module.statusInfo != null) return false;
-        return statusChangeDate != null ? statusChangeDate.equals(module.statusChangeDate) : module.statusChangeDate == null;
-
+        if (statusChangeDate != null ? !statusChangeDate.equals(module.statusChangeDate) : module.statusChangeDate != null)
+            return false;
+        return stand != null ? stand.equals(module.stand) : module.stand == null;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
+        int result = id.hashCode();
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (statusInfo != null ? statusInfo.hashCode() : 0);
         result = 31 * result + (statusChangeDate != null ? statusChangeDate.hashCode() : 0);
+        result = 31 * result + (stand != null ? stand.hashCode() : 0);
         return result;
     }
 

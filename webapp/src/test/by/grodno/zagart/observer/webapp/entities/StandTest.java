@@ -20,6 +20,7 @@ public class StandTest {
     private Stand testStand;
     private Long id = (new Random()).nextLong();
     private String number = RandomStringUtils.randomNumeric(4);
+    private String description = RandomStringUtils.randomAlphabetic(20);
     private ArrayList<Module> moduleList = new ArrayList<>();
     private Module module = new Module();
 
@@ -28,6 +29,7 @@ public class StandTest {
         testStand = new Stand();
         testStand.setId(id);
         testStand.setNumber(number);
+        testStand.setDescription(description);
         testStand.setModuleList(moduleList);
     }
 
@@ -37,9 +39,10 @@ public class StandTest {
     }
 
     @Test
-    public void getNumberTest() {
-        Assert.assertEquals(number, testStand.getNumber());
-    }
+    public void getNumberTest() { Assert.assertEquals(number, testStand.getNumber()); }
+
+    @Test
+    public void getDescriptionTest() { Assert.assertEquals(description, testStand.getDescription()); }
 
     @Test
     public void getModuleListTest() {
