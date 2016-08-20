@@ -32,6 +32,25 @@ public class Stand implements Identifiable<Long> {
     public List<Module> getModuleList() { return moduleList; }
     public void setModuleList(ArrayList<Module> moduleList) { this.moduleList = moduleList; }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Stand stand = (Stand) o;
+
+        if (!id.equals(stand.id)) return false;
+        return number != null ? number.equals(stand.number) : stand.number == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + (number != null ? number.hashCode() : 0);
+        return result;
+    }
+
     public void addModule(Module module) {
         module.setStand(this);
         this.moduleList.add(module);
