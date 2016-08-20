@@ -18,6 +18,7 @@ public class Stand implements Identifiable<Long> {
     private String number;
     private ArrayList<Module> moduleList;
 
+    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")

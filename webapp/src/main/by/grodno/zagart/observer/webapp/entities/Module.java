@@ -1,5 +1,7 @@
 package by.grodno.zagart.observer.webapp.entities;
 
+import by.grodno.zagart.observer.webapp.interfaces.Identifiable;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -9,12 +11,20 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "MODULE")
-public class Module {
+public class Module implements Identifiable<Long> {
 
+    private Long id;
     private String name;
     private String statusInfo;
     private Date statusChangeDate;
     private Stand stand;
+
+    @Override
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     @Column(name = "NAME")
     public String getName() { return name; }
