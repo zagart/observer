@@ -1,28 +1,21 @@
 package by.grodno.zagart.observer.webapp;
 
-import by.grodno.zagart.observer.webapp.entities.Module;
-import by.grodno.zagart.observer.webapp.entities.Stand;
-import by.grodno.zagart.observer.webapp.services.impl.ModuleServiceImpl;
-import by.grodno.zagart.observer.webapp.services.impl.StandServiceImpl;
-import by.grodno.zagart.observer.webapp.utils.HibernateUtil;
+import by.grodno.zagart.observer.webapp.network.TcpClient;
+import by.grodno.zagart.observer.webapp.network.TcpListener;
 
-import static by.grodno.zagart.observer.webapp.utils.DataUtil.getNewModule;
-import static by.grodno.zagart.observer.webapp.utils.DataUtil.getNewStand;
+import java.util.Properties;
 
 public class Main {
 
-    private static StandServiceImpl standService = new StandServiceImpl();
-    private static ModuleServiceImpl moduleService = new ModuleServiceImpl();
-
     public static void main(String...args) {
-        Module module = getNewModule();
-        moduleService.save(module);
-        Stand stand = getNewStand();
-        standService.save(stand);
-        stand.addModule(module);
-        standService.update(stand);
-        moduleService.update(module);
-        HibernateUtil.closeFactory();
+        Properties properties = new Properties();
+        properties.put("number", "1");
+        properties.put("description", "First stand.");
+        properties.put("name", "temperature sensor");
+        properties.put("status", "33 C");
+        System.out.println(properties.toString());
+        TcpListener tcpListener = new TcpListener();
+        TcpClient tcpClient = new TcpClient();
     }
 
 }

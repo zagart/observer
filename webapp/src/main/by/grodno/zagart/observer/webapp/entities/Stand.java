@@ -1,9 +1,14 @@
 package by.grodno.zagart.observer.webapp.entities;
 
 import by.grodno.zagart.observer.webapp.interfaces.Identifiable;
+import by.grodno.zagart.observer.webapp.interfaces.Loggable;
+import by.grodno.zagart.observer.webapp.utils.DataUtil;
 
 import javax.persistence.*;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Класс-сущность, описывает объекты типа "информация о стенде" и их свойства.
@@ -11,7 +16,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "STAND")
-public class Stand implements Identifiable<Long> {
+public class Stand implements Identifiable<Long>, Loggable {
 
     private Long id;
     private String number;
@@ -57,8 +62,26 @@ public class Stand implements Identifiable<Long> {
     }
 
     public void addModule(Module module) {
+        if (moduleList == null) {
+            moduleList = new ArrayList<>();
+        }
         module.setStand(this);
         this.moduleList.add(module);
+    }
+
+    public static Stand setStandUsingTcpData(String tcpData) throws NoClassDefFoundError {
+        Stand stand = new Stand();
+        try {
+            Properties properties = DataUtil.convertTcpDataToProperties(tcpData);
+            stand.setNumber(properties.getProperty("number"));
+            stand.setDescription(properties.getProperty("description"));
+        } catch (IOException ex) {
+            logger.error("Stand class. Convertion (string-to-properties) error: " + ex.getStackTrace());
+        }
+        if (stand.getNumber() == null) {
+            throw new NoClassDefFoundError();
+        }
+        return stand;
     }
 
 }

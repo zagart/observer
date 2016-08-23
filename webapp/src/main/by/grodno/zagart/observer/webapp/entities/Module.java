@@ -1,10 +1,14 @@
 package by.grodno.zagart.observer.webapp.entities;
 
 import by.grodno.zagart.observer.webapp.interfaces.Identifiable;
+import by.grodno.zagart.observer.webapp.interfaces.Loggable;
+import by.grodno.zagart.observer.webapp.utils.DataUtil;
 
 import javax.persistence.*;
+import java.io.IOException;
+import java.io.StringReader;
 import java.sql.Timestamp;
-import java.util.Date;
+import java.util.*;
 
 /**
  * Класс описывает объекты типа "модуль" и их свойства.
@@ -12,7 +16,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "MODULE")
-public class Module implements Identifiable<Long> {
+public class Module implements Identifiable<Long>, Loggable {
 
     private Long id;
     private String name;
@@ -68,6 +72,22 @@ public class Module implements Identifiable<Long> {
         result = 31 * result + (statusChangeDate != null ? statusChangeDate.hashCode() : 0);
         result = 31 * result + (stand != null ? stand.hashCode() : 0);
         return result;
+    }
+
+    public static Module setModuleUsingTcpData(String data) throws NoClassDefFoundError {
+        Module module = new Module();
+        try {
+            Properties properties = DataUtil.convertTcpDataToProperties(data);
+            module.setName(properties.getProperty("name"));
+            module.setStatusInfo(properties.getProperty("status"));
+            module.setStatusChangeDate(new Date());
+        } catch (IOException ex) {
+            logger.error("Module class. Convertion (string-to-properties) error: " + ex.getStackTrace());
+        }
+        if (module.getName() == null || module.getStatusInfo() == null) {
+            throw new NoClassDefFoundError();
+        }
+        return module;
     }
 
 }
