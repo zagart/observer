@@ -2,11 +2,9 @@ package by.grodno.zagart.observer.webapp.network;
 
 import by.grodno.zagart.observer.webapp.interfaces.Loggable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.util.Properties;
 
 /**
  * Класс, отвечающий за сетевое соединение на стороне
@@ -37,23 +35,40 @@ public class TcpClient extends Thread implements Loggable {
 
     @Override
     public synchronized void run() {
-        try (
-                Socket clientSocket = new Socket(hostName, hostPort);
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                BufferedReader sysIn = new BufferedReader(new InputStreamReader(System.in))
-        ) {
-            System.out.println("TcpClient running...");
-            String inputMsg;
-            while ((inputMsg = in.readLine()) != null) {
-                System.out.println("TcpListener: " + inputMsg);
-                System.out.print("Client: ");
-                String message = sysIn.readLine();
-                out.println(message);
+        try (Socket clientSocket = new Socket(hostName, hostPort); IOStreamHandler io = new IOStreamHandler(clientSocket)) {
+            if (io.getInput().readLine() != null) {
+                System.out.println("Catch! -> " + io.getInput().readLine());
             }
         } catch (IOException ex) {
-            logger.error(ex.getMessage() + ex.getStackTrace());
+            logger.error("client: I/O exception!");
         }
+    }
+
+    private boolean sendProperties(BufferedReader reader,
+                                   ObjectOutputStream writer,
+                                   PrintWriter out,
+                                   Properties properties,
+                                   String command) throws IOException {
+        out.println("send data");
+        String response;
+        while ((response = reader.readLine()) != null) {
+            System.out.println("server: " + response);
+            if (response.equals("ready") && command.equals("go")) {
+                writer.writeObject(properties);
+                return true;
+            }
+        }
+        System.out.println("not connected.");
+        return false;
+    }
+
+    private Properties getData() {
+        Properties properties = new Properties();
+        properties.put("number", "1");
+        properties.put("description", "First stand.");
+        properties.put("name", "temperature sensor");
+        properties.put("status", "33 C");
+        return properties;
     }
 
 }

@@ -6,6 +6,7 @@ import by.grodno.zagart.observer.webapp.utils.DataUtil;
 
 import javax.persistence.*;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -16,7 +17,9 @@ import java.util.Properties;
  */
 @Entity
 @Table(name = "STAND")
-public class Stand implements Identifiable<Long>, Loggable {
+public class Stand implements Identifiable<Long>, Loggable, Serializable {
+
+    private static final long serialVersionUID = 2L;
 
     private Long id;
     private String number;

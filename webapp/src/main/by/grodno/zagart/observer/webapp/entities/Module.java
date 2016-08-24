@@ -6,6 +6,7 @@ import by.grodno.zagart.observer.webapp.utils.DataUtil;
 
 import javax.persistence.*;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.sql.Timestamp;
 import java.util.*;
@@ -16,7 +17,9 @@ import java.util.*;
  */
 @Entity
 @Table(name = "MODULE")
-public class Module implements Identifiable<Long>, Loggable {
+public class Module implements Identifiable<Long>, Loggable, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private String name;
