@@ -2,6 +2,7 @@ webapp/.idea/
 webapp/.idea/libraries/
 webapp/target/
 webapp/*.iml
+webapp/dependency-reduced-pom.xml
 localapp/.idea/
 localapp/.idea/libraries/
 localapp/target/

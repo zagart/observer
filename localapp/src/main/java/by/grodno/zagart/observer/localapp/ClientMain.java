@@ -17,7 +17,7 @@ public class ClientMain implements Loggable {
         int attempts = 0;
         while (!success && (attempts++ < ATTEMPTS_LIMIT)) {
             try {
-                new TcpClient("localhost", 8080, new Properties());
+                new TcpClient("localhost", 8080, getData());
                 success = true;
             } catch (IOException ex) {
                 success = false;
@@ -26,7 +26,7 @@ public class ClientMain implements Loggable {
         }
     }
 
-    private Properties getData() {
+    private static Properties getData() {
         Properties properties = new Properties();
         properties.put("number", "1");
         properties.put("description", "First stand.");

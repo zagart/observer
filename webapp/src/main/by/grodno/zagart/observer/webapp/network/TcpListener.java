@@ -36,8 +36,9 @@ public class TcpListener extends Thread implements Closeable {
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true)
         ) {
             out.println("ready");
-            if (getPropertiesFromTcp(in) != null) {
-                out.println("success");
+            Properties data = getPropertiesFromTcp(in);
+            if (data != null) {
+                out.println("success -> " + data);
             } else {
                 out.println("failed");
             }

@@ -16,6 +16,7 @@
     <log4j.version>1.2.17</log4j.version>
     <junit.version>4.11</junit.version>
     <mysql.version>5.1.6</mysql.version>
+    <exec.mvn>1.2.1</exec.mvn>
   </properties>
 
   <dependencies>
@@ -55,6 +56,14 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec.mvn}</version>
+        <configuration>
+          <mainClass>by.grodno.zagart.observer.localapp.ClientMain</mainClass>
         </configuration>
       </plugin>
     </plugins>
