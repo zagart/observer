@@ -2,3 +2,7 @@ webapp/.idea/
 webapp/.idea/libraries/
 webapp/target/
 webapp/*.iml
+localapp/.idea/
+localapp/.idea/libraries/
+localapp/target/
+localapp/*.iml
