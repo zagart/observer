@@ -14,7 +14,7 @@
 void send_byte_to_lcd(uint8_t value);
 void send_command_to_lcd(uint8_t value);
 void set_cursor(uint8_t y, uint8_t x);
-void specify_user_symbol(uint8_t no1,
+void set_user_symbol(uint8_t no1,
                          uint8_t no2,
                          uint8_t no3,
                          uint8_t no4,
@@ -28,13 +28,13 @@ void generate_numeral(uint8_t numeral);
 uint8_t adc_value_generator(uint8_t counter,
                             uint8_t initial_value,
                             uint8_t step);
-void display_adc_value(uint8_t contact, 
-                       uint8_t limit, 
-                       uint8_t row,           
+void print_adc_value(uint8_t row,
+                       uint8_t contact,   
                        uint8_t initial_value,            
-                       uint8_t step);
+                       uint8_t step,
+                       uint8_t limit);
 void animate_adc_value(uint8_t row,           
                        uint8_t initial_value,            
-                       uint8_t step);
-
+                       uint8_t step,
+                       uint8_t limit);
 #endif

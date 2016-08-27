@@ -26,7 +26,7 @@
 void send_byte_to_lcd(uint8_t value);
 void send_command_to_lcd(uint8_t value);
 void set_cursor(uint8_t y, uint8_t x);
-void specify_user_symbol(uint8_t no1,
+void set_user_symbol(uint8_t no1,
                          uint8_t no2,
                          uint8_t no3,
                          uint8_t no4,
@@ -40,24 +40,17 @@ void generate_numeral(uint8_t numeral);
 uint8_t adc_value_generator(uint8_t counter,
                             uint8_t initial_value,
                             uint8_t step);
-void display_adc_value(uint8_t contact, 
-                       uint8_t limit, 
-                       uint8_t row,           
+void print_adc_value(uint8_t row,
+                       uint8_t contact,   
                        uint8_t initial_value,            
-                       uint8_t step);
+                       uint8_t step,
+                       uint8_t limit);
 void animate_adc_value(uint8_t row,           
                        uint8_t initial_value,            
-                       uint8_t step);
+                       uint8_t step,
+                       uint8_t limit);
 
-/**
- * @brief Указанные ниже статические переменные соответствуют
- * границам массивов. Требуют ручной установки, как описано
- * в комментарии к методу library_load.
- * 
- * @ref library_load
- */
-static uint8_t limit_of_library = 103;
-static uint8_t adc_value_step = 13;
+//текущее значение АЦП
 static uint8_t adc_value = 0;
 
 /**
@@ -127,7 +120,7 @@ void set_cursor(uint8_t y, uint8_t x) {
  * @param no6 Код строки #6.
  * @param no7 Код строки #7.
  */
-void specify_user_symbol(uint8_t no1,
+void set_user_symbol(uint8_t no1,
                          uint8_t no2,
                          uint8_t no3,
                          uint8_t no4,
@@ -151,14 +144,14 @@ void specify_user_symbol(uint8_t no1,
  */
 void load_animation_symbols() { 
     send_command_to_lcd(0x40); 
-    specify_user_symbol(0x00,0x00,0x00,0x00,0x00,0x00,0x00);
-    specify_user_symbol(0x00,0x00,0x00,0x00,0x00,0x00,0x1F);
-    specify_user_symbol(0x00,0x00,0x00,0x00,0x00,0x1F,0x1F);
-    specify_user_symbol(0x00,0x00,0x00,0x00,0x1F,0x1F,0x1F);
-    specify_user_symbol(0x00,0x00,0x00,0x1F,0x1F,0x1F,0x1F);
-    specify_user_symbol(0x00,0x00,0x1F,0x1F,0x1F,0x1F,0x1F);
-    specify_user_symbol(0x00,0x1F,0x1F,0x1F,0x1F,0x1F,0x1F);
-    specify_user_symbol(0x1F,0x1F,0x1F,0x1F,0x1F,0x1F,0x1F);
+    set_user_symbol(0x00,0x00,0x00,0x00,0x00,0x00,0x00);
+    set_user_symbol(0x00,0x00,0x00,0x00,0x00,0x00,0x1F);
+    set_user_symbol(0x00,0x00,0x00,0x00,0x00,0x1F,0x1F);
+    set_user_symbol(0x00,0x00,0x00,0x00,0x1F,0x1F,0x1F);
+    set_user_symbol(0x00,0x00,0x00,0x1F,0x1F,0x1F,0x1F);
+    set_user_symbol(0x00,0x00,0x1F,0x1F,0x1F,0x1F,0x1F);
+    set_user_symbol(0x00,0x1F,0x1F,0x1F,0x1F,0x1F,0x1F);
+    set_user_symbol(0x1F,0x1F,0x1F,0x1F,0x1F,0x1F,0x1F);
 }
 
 /**
@@ -245,20 +238,20 @@ uint8_t adc_value_generator(uint8_t counter,
  * @param initial_value Значение первого элемента в библиотеке.
  * @param step Значение, на которое различаются элементы.
  */
-void display_adc_value(uint8_t contact, 
-        uint8_t limit, 
-        uint8_t row,           
-        uint8_t initial_value,            
-        uint8_t step) {
+void print_adc_value(uint8_t row,
+                       uint8_t contact,   
+                       uint8_t initial_value,            
+                       uint8_t step,
+                       uint8_t limit) {
     adc_value = get_adc_value(contact);
     uint8_t generated_adc_value = 0;
     uint8_t count = 0;
-    uint8_t error = 0x01;
     uint8_t temp = 0; 
     1 == row ? set_cursor(1, 13) : set_cursor(2, 14);
     for (count = 0; count < limit; ++count) {
         generated_adc_value = adc_value_generator(count, initial_value, step);
-        if ((adc_value - error <= generated_adc_value) && (adc_value + error >= generated_adc_value)) {
+        if ((adc_value - ADC_ERROR_VALUE <= generated_adc_value) && 
+                (adc_value + ADC_ERROR_VALUE >= generated_adc_value)) {
             if (count < 10) {
                 send_byte_to_lcd(0x20);
                 generate_numeral(count);
@@ -305,7 +298,8 @@ void display_adc_value(uint8_t contact,
  */
 void animate_adc_value(uint8_t row,           
                        uint8_t initial_value,            
-                       uint8_t step) {
+                       uint8_t step,
+                       uint8_t limit) {
     //в статической переменной при итерации сохраняется позиция
     //последнего отображенного символа
     static uint8_t position[2] = {1,1};
@@ -315,13 +309,13 @@ void animate_adc_value(uint8_t row,
     11 == position[0] ? position[0] = 1 : position[0];
     11 == position[1] ? position[1] = 1 : position[1];
     1 == row ? set_cursor(1, position[0]) : set_cursor(2, position[1]);
-    for (count = 0; count < limit_of_library; ++count) {
+    for (count = 0; count < limit; ++count) {
         generated_adc_value = adc_value_generator(count,initial_value,step);
         if ((adc_value - 0x01 <= generated_adc_value) && (adc_value + 0x01 >= generated_adc_value)) {
             for (inner_count = 0; inner_count < 8; ++inner_count) {
-                if (count < adc_value_step * (1 + inner_count)) {
+                if (count < ADC_VALUE_STEP * (1 + inner_count)) {
                     send_byte_to_lcd(inner_count);
-                    count = limit_of_library;
+                    count = limit;
                     break;
                 }
             }
@@ -338,10 +332,24 @@ void main(void) {
     load_animation_symbols();    
     while (true) {
         CLRWDT();        
-        display_adc_value(1,limit_of_library,1,0x21,0x02);
-        animate_adc_value(1,0x21,0x02);        
-        display_adc_value(0,100,2,0x00,0x01);
-        animate_adc_value(2,0x00,0x01);
+        print_adc_value(1,
+                TEMP_SENSOR_PIN,
+                TEMP_SENSOR_INIT_VALUE,
+                TEMP_SENSOR_STEP_VALUE,
+                TEMP_SENSOR_LIBRARY_MAX);
+        animate_adc_value(1,
+                TEMP_SENSOR_INIT_VALUE,
+                TEMP_SENSOR_STEP_VALUE,
+                TEMP_SENSOR_LIBRARY_MAX);        
+        print_adc_value(2,
+                LIGHT_SENSOR_PIN,
+                LIGHT_SENSOR_INIT_VALUE,
+                LIGHT_SENSOR_STEP_VALUE,
+                LIGHT_SENSOR_LIBRARY_MAX);
+        animate_adc_value(2,
+                LIGHT_SENSOR_INIT_VALUE,
+                LIGHT_SENSOR_STEP_VALUE,
+                LIGHT_SENSOR_LIBRARY_MAX);
         __delay_ms(500);       
     }
 }
