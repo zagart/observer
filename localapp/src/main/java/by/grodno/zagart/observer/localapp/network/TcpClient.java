@@ -1,4 +1,4 @@
-package by.grodno.zagart.observer.localapp;
+package by.grodno.zagart.observer.localapp.network;
 
 import by.grodno.zagart.observer.localapp.interfaces.Closeable;
 
@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.util.Properties;
 
 /**
- * Класс, отвечающий за сетевое соединение на стороне
+ * Класс, отвечающий за сетевое соединение(TCP) на стороне
  * клиента. Наследует интерфейс Closeable, который упрощает
  * освобождение ресурсов. Интерфейс Closeable также наследует
  * интерфейс Loggable, что позволяет и данному классу также

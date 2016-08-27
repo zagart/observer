@@ -11,7 +11,7 @@
   <url>http://maven.apache.org</url>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.sourceEncoding>windows-1251</project.build.sourceEncoding>
     <commons.lang.version>2.6</commons.lang.version>
     <log4j.version>1.2.17</log4j.version>
     <junit.version>4.11</junit.version>
@@ -63,7 +63,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>${exec.mvn}</version>
         <configuration>
-          <mainClass>by.grodno.zagart.observer.localapp.ClientMain</mainClass>
+          <mainClass>by.grodno.zagart.observer.localapp.Main</mainClass>
         </configuration>
       </plugin>
     </plugins>
