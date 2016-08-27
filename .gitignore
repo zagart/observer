@@ -7,3 +7,8 @@ localapp/.idea/
 localapp/.idea/libraries/
 localapp/target/
 localapp/*.iml
+firmware#1/build/
+firmware#1/debug/
+firmware#1/dist/
+firmware#1/nbproject/
+firmware#1/Makefile
