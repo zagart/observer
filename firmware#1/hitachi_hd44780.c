@@ -1,12 +1,17 @@
 /**
  * @page hitachi_hd44780.c
  * 
- * @brief File which contains collection of the functions
- * for executing operations with the Hitachi HD44780.
+ * @brief Файл содержит методы для работы с LCD-дисплеем
+ * Hitachi HD44780.
  * 
- * @detailed Functions represented below execute measuring
- * of tempreture using ACD module integrated in controller
- * PIC16F877 and display it at the Hitachi HD44780 LCD display.
+ * @detailed Функции метода предназначены не только для
+ * отображения символов, но и для создания анимации на
+ * на основе данных, полученных с датчика освещения и
+ * датчика температуры (при помощи АЦП). 
+ * В коде встречается термин "библиотека" - касательно АЦП,
+ * это диапазон генерируемых им значений.
+ * 
+ * @ref adc.h
  * 
  * @author Zagart
  */
@@ -28,10 +33,10 @@ void specify_user_symbol(uint8_t no1,
                          uint8_t no5,
                          uint8_t no6,
                          uint8_t no7);
-void loading_user_symbols();
+void load_animation_symbols();
 void lcd_display_init();
 void display_text_on_lcd();
-void display_numeral(uint8_t numeral);
+void generate_numeral(uint8_t numeral);
 uint8_t adc_value_generator(uint8_t counter,
                             uint8_t initial_value,
                             uint8_t step);
@@ -45,20 +50,21 @@ void animate_adc_value(uint8_t row,
                        uint8_t step);
 
 /**
- * @brief Borders of massives listed below require be defined by hand
- * as described for function library_load.
+ * @brief Указанные ниже статические переменные соответствуют
+ * границам массивов. Требуют ручной установки, как описано
+ * в комментарии к методу library_load.
+ * 
  * @ref library_load
  */
-
 static uint8_t limit_of_library = 103;
 static uint8_t adc_value_step = 13;
 static uint8_t adc_value = 0;
 
 /**
- * @brief Function sends bytes to the embedded controller of 
- * Hitachi display.
+ * @brief Метод для отсылки данных! встроенному контроллеру
+ * дисплея.
  * 
- * @param value Contains byte for the embedded controller.
+ * @param value Байт для отсылки.
  */
 void send_byte_to_lcd(uint8_t value) {
     RC0 = 1;
@@ -69,10 +75,10 @@ void send_byte_to_lcd(uint8_t value) {
 }
 
 /**
- * @brief Function sends commands to the embedded controller of 
- * Hitachi display.
+ * @brief Метод для отсылки команд! встроенному контроллеру
+ * дисплея.
  * 
- * @param value Contains command for the embedded controller.
+ * @param value Байт команды для отсылки.
  */
 void send_command_to_lcd(uint8_t value) { 
     RC0 = 0;
@@ -84,49 +90,43 @@ void send_command_to_lcd(uint8_t value) {
 }
 
 /**
- * @brief Function is destined for specifying random symbols. In 
- * fact it is just sending bytes for the embedded controller of 
- * LCD-display but if previously was sent write command, then this
- * bulk of bytes becomes user-specified symbol in memory of display.
- * All bytes from parameters becomes one symbol.
- * 
- * @param no1 Code of row #1.
- * @param no2 Code of row #2.
- * @param no3 Code of row #3.
- * @param no4 Code of row #4.
- * @param no5 Code of row #5.
- * @param no6 Code of row #6.
- * @param no7 Code of row #7.
+ * @brief Метод устанавливает курсор дисплея на указанную
+ * в параметрах позицию. 
+ * (надо будет обработать ситуацию, когда нули в параметрах)
+ *  
+ * @param x Номер строки.
+ * @param y Номер стобца.
  */
-
-/**
- * @brief Function sets cursor to the position which pointed at input 
- * parameters. Affects LCD display in case 1<=y<=2 and 1<=x<=16.
- * 
- * @param x Number of row.
- * @param y Number of column.
- */
-void set_cursor(uint8_t y, uint8_t x) {
-    
+void set_cursor(uint8_t y, uint8_t x) {   
     uint8_t count = x - 1;
-    uint8_t command = 0x00;
-    
-    if ((1==y||2==y)&&(0<x&&17>x)) {
-        
-        1==y ? command = 0x00 : command = 0x40;
-
-        while (0!=count) {
+    uint8_t command = 0x00;  
+    if ((LCD_ROWS_MAX >= y)&&(LCD_COLUMNS_MAX >= x)) {    
+        1 == y ? command = 0x00 : command = 0x40;
+        while (0 != count) {
             command = command + 0x01;
             --count;
         }
-
         command = command + 0x80;
-        send_command_to_lcd(command);
-        
-    }
-       
+        send_command_to_lcd(command);      
+    }      
 }
 
+/**
+ * @brief Метод для генерации символа. Фактически, это просто
+ * отправка байта встроенному микро-контроллеру дисплея. Однако, если
+ * предварительно была отправлена команда записи, тогда последовательно
+ * отправленные байты формируют символ в памяти встроенного микро-контроллера.
+ * Каждое знакоместо дисплея представлено восемью микро-строками, для
+ * формирования символа доступно 7.
+ * 
+ * @param no1 Код строки #1.
+ * @param no2 Код строки #2.
+ * @param no3 Код строки #3.
+ * @param no4 Код строки #4.
+ * @param no5 Код строки #5.
+ * @param no6 Код строки #6.
+ * @param no7 Код строки #7.
+ */
 void specify_user_symbol(uint8_t no1,
                          uint8_t no2,
                          uint8_t no3,
@@ -134,7 +134,6 @@ void specify_user_symbol(uint8_t no1,
                          uint8_t no5,
                          uint8_t no6,
                          uint8_t no7) {
-
     send_byte_to_lcd(no1);
     send_byte_to_lcd(no2);
     send_byte_to_lcd(no3);
@@ -142,17 +141,15 @@ void specify_user_symbol(uint8_t no1,
     send_byte_to_lcd(no5);
     send_byte_to_lcd(no6);
     send_byte_to_lcd(no7);
-    send_byte_to_lcd(0x1F);
-  
+    send_byte_to_lcd(0x1F); 
 }
 
 /**
- * @brief Function performs multiple calls of another function which
- * is destined for specifying random symbols and saving them in memory of
- * embedded controller of LCD-display.
- * 
+ * @brief Метод для загрузки в память микро-контроллера
+ * дисплея символов, которые вспоследствии будут использованы
+ * для создания анимации.
  */
-void loading_user_symbols() { 
+void load_animation_symbols() { 
     send_command_to_lcd(0x40); 
     specify_user_symbol(0x00,0x00,0x00,0x00,0x00,0x00,0x00);
     specify_user_symbol(0x00,0x00,0x00,0x00,0x00,0x00,0x1F);
@@ -165,11 +162,7 @@ void loading_user_symbols() {
 }
 
 /**
- * @brief Function executes initialization of the
- * Hitachi display.
- * 
- * @detailed Includes configuration of neccesary ports and sending
- * required commands to the embedded controller of display.
+ * @brief Метод инициализации дисплея.
  */
 void lcd_display_init() {   
     TRISB = 0x00;
@@ -185,12 +178,12 @@ void lcd_display_init() {
 }
 
 /**
- * @brief Function perform displaying of the required numeral on the
- * Hitachi display.
+ * @brief Метод генерирует байт, соответствующий цифре, указанной
+ * в парметрах, и отправляет его встроенному микро-контроллеру дисплея.
  * 
- * @param numeral Numeral which is destined for displaying.
+ * @param numeral Цифра для генерации.
  */
-void display_numeral(uint8_t numeral) {    
+void generate_numeral(uint8_t numeral) {    
     switch (numeral) {        
         case 0:
             send_byte_to_lcd(0x30);
@@ -226,12 +219,14 @@ void display_numeral(uint8_t numeral) {
 }
 
 /**
- * @brief To avoid using much RAM memory of controller this function
- * replaces creating big massive.
+ * @brief Функция позволяет избежать использования большого количества RAM памяти 
+ * микро-контроллера путем генерации значений "на лету", без создания массива. Это
+ * возможно благодаря тому, что между значениями, которые генерирует АЦП, есть
+ * определенная зависимость.
  * 
- * @param counter Number required for generating value of adc.
- * @param initial_value Value of the first element in emulating library.
- * @param step Defines value which will adds to the initial_value
+ * @param counter Количество генерируемых значений АЦП.
+ * @param initial_value Значение первого элемента в библиотеке.
+ * @param step Значение, на которое будут различаться элементы.
  * every iteration.
  */
 uint8_t adc_value_generator(uint8_t counter,
@@ -241,35 +236,32 @@ uint8_t adc_value_generator(uint8_t counter,
 }
 
 /**
- * @brief Function looking for value in library. It must be equal
- * to value on ADC contact. After it value will displayed.
+ * @brief Функция ищет значение в библиотеке. Оно должно быть
+ * равно значению на контакте АЦП. После этого значение будет
+ * выведено на дисплей.
  * 
- * @param contact ADC contact number.
- * @param limit Values limit.
- * @param initial_value Value of the first element in emulating library.
- * @param step Defines value which will adds to the initial_value
- * every iteration.
+ * @param contact Номер контакта АЦП.
+ * @param limit Предельное значение.
+ * @param initial_value Значение первого элемента в библиотеке.
+ * @param step Значение, на которое различаются элементы.
  */
 void display_adc_value(uint8_t contact, 
         uint8_t limit, 
         uint8_t row,           
         uint8_t initial_value,            
         uint8_t step) {
-
     adc_value = get_adc_value(contact);
     uint8_t generated_adc_value = 0;
     uint8_t count = 0;
     uint8_t error = 0x01;
-    uint8_t temp = 0;
-    
+    uint8_t temp = 0; 
     1 == row ? set_cursor(1, 13) : set_cursor(2, 14);
-    
     for (count = 0; count < limit; ++count) {
         generated_adc_value = adc_value_generator(count, initial_value, step);
         if ((adc_value - error <= generated_adc_value) && (adc_value + error >= generated_adc_value)) {
             if (count < 10) {
                 send_byte_to_lcd(0x20);
-                display_numeral(count);
+                generate_numeral(count);
                 if (1 == contact) {
                     send_byte_to_lcd(0xDF);
                     send_byte_to_lcd(0x43);
@@ -278,8 +270,8 @@ void display_adc_value(uint8_t contact,
                     send_byte_to_lcd(0x20);
                 }
             } else if (count < 100) {
-                display_numeral((uint8_t)(count/10));
-                display_numeral((uint8_t)(count%10));
+                generate_numeral((uint8_t)(count/10));
+                generate_numeral((uint8_t)(count%10));
                 if (1 == contact) {
                     send_byte_to_lcd(0xDF);
                     send_byte_to_lcd(0x43);
@@ -289,9 +281,9 @@ void display_adc_value(uint8_t contact,
                 }
             } else {
                 temp = (uint8_t)(count/10);
-                display_numeral((uint8_t)(temp/10));
-                display_numeral((uint8_t)(temp%10));
-                display_numeral((uint8_t)(count%10));
+                generate_numeral((uint8_t)(temp/10));
+                generate_numeral((uint8_t)(temp%10));
+                generate_numeral((uint8_t)(count%10));
                 if (1 == contact) {
                     send_byte_to_lcd(0xDF);
                     send_byte_to_lcd(0x43);
@@ -306,26 +298,23 @@ void display_adc_value(uint8_t contact,
 }
 
 /**
- * @brief Method executes animating of current ADC value.
+ * @brief Метод выводит на дисплей пользовательский символ,
+ * соответствующий текущему значению АЦП.
  * 
- * @param row Select of row to print data.
- * @param position Reserved variable for saving current position
- * of cursor in row.
+ * @param row Номер строки для отображения.
  */
 void animate_adc_value(uint8_t row,           
                        uint8_t initial_value,            
                        uint8_t step) {
-   
+    //в статической переменной при итерации сохраняется позиция
+    //последнего отображенного символа
     static uint8_t position[2] = {1,1};
     uint8_t count = 0;
     uint8_t inner_count = 0;
     uint8_t generated_adc_value = 0;
-
     11 == position[0] ? position[0] = 1 : position[0];
     11 == position[1] ? position[1] = 1 : position[1];
-    
     1 == row ? set_cursor(1, position[0]) : set_cursor(2, position[1]);
-       
     for (count = 0; count < limit_of_library; ++count) {
         generated_adc_value = adc_value_generator(count,initial_value,step);
         if ((adc_value - 0x01 <= generated_adc_value) && (adc_value + 0x01 >= generated_adc_value)) {
@@ -337,18 +326,16 @@ void animate_adc_value(uint8_t row,
                 }
             }
         }
-    }
-    
+    } 
      1 == row ? position[0]++ : position[1]++;           
 }
 
 /**
- * @brief Main function which is responsible for displaying
- * symbols. 
+ * @brief Точка входа прошивки.
  */
 void main(void) {
     lcd_display_init();
-    loading_user_symbols();    
+    load_animation_symbols();    
     while (true) {
         CLRWDT();        
         display_adc_value(1,limit_of_library,1,0x21,0x02);

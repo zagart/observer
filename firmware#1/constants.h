@@ -15,7 +15,11 @@
 
 #ifndef CONSTANTS_H
 #define	CONSTANTS_H
+//константы общего типа
 #define _XTAL_FREQ 4000000
+#define LCD_ROWS_MAX 2
+#define LCD_COLUMNS_MAX 16
+//константы статуса
 #define STAND_INIT  0x01
 #endif
 

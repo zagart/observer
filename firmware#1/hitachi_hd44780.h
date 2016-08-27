@@ -1,8 +1,8 @@
 /**
  * @page hitachi_hd44780.h
  * 
- * @brief Файл с прототипами функций основного класса.
- * Необходим компилятору для сборки проекта.
+ * @brief Р¤Р°Р№Р» СЃ РїСЂРѕС‚РѕС‚РёРїР°РјРё С„СѓРЅРєС†РёР№ РѕСЃРЅРѕРІРЅРѕРіРѕ РєР»Р°СЃСЃР°.
+ * РќРµРѕР±С…РѕРґРёРј РєРѕРјРїРёР»СЏС‚РѕСЂСѓ РґР»СЏ СЃР±РѕСЂРєРё РїСЂРѕРµРєС‚Р°.
  * 
  * @ref hitachi_hd44780.c
  * 
@@ -21,10 +21,10 @@ void specify_user_symbol(uint8_t no1,
                          uint8_t no5,
                          uint8_t no6,
                          uint8_t no7);
-void loading_user_symbols();
+void load_animation_symbols();
 void lcd_display_init();
 void display_text_on_lcd();
-void display_numeral(uint8_t numeral);
+void generate_numeral(uint8_t numeral);
 uint8_t adc_value_generator(uint8_t counter,
                             uint8_t initial_value,
                             uint8_t step);
