@@ -11,6 +11,9 @@
 
 #ifndef HITACHI_HD44780_H
 #define HITACHI_HD44780_H
+//константы LCD-дисплея
+#define LCD_ROWS_MAX 2
+#define LCD_COLUMNS_MAX 16
 void send_byte_to_lcd(uint8_t value);
 void send_command_to_lcd(uint8_t value);
 void set_cursor(uint8_t y, uint8_t x);

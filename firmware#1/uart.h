@@ -11,5 +11,8 @@
 
 #ifndef UART_H
 #define UART_H
-void send_byte_via_serial(uint8_t value);
+//константы файла USART-модуля
+#define USART_SPD_9600 25
+void usart_init();
+void send_byte_via_serial(uint8_t type, uint8_t value);
 #endif

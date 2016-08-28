@@ -22,6 +22,7 @@
 #include "adc.h"
 #include "uart.h"
 #include "constants.h"
+#include "hitachi_hd44780.h"
 
 void send_byte_to_lcd(uint8_t value);
 void send_command_to_lcd(uint8_t value);
@@ -167,7 +168,7 @@ void lcd_display_init() {
     send_command_to_lcd(0x38);
     send_command_to_lcd(0x06);
     send_command_to_lcd(0x0C);
-    send_byte_via_serial(STAND_INIT);
+    send_byte_via_serial(STATUS,STAND_INIT);
 }
 
 /**
@@ -262,6 +263,7 @@ void print_adc_value(uint8_t row,
                     send_byte_to_lcd(0x25);
                     send_byte_to_lcd(0x20);
                 }
+                //send_byte_via_serial(VALUE,count);
             } else if (count < 100) {
                 generate_numeral((uint8_t)(count/10));
                 generate_numeral((uint8_t)(count%10));
@@ -272,6 +274,7 @@ void print_adc_value(uint8_t row,
                     send_byte_to_lcd(0x25);
                     send_byte_to_lcd(0x20);
                 }
+                //send_byte_via_serial(VALUE,count);
             } else {
                 temp = (uint8_t)(count/10);
                 generate_numeral((uint8_t)(temp/10));
@@ -284,6 +287,7 @@ void print_adc_value(uint8_t row,
                     send_byte_to_lcd(0x25);
                     send_byte_to_lcd(0x20);
                 }
+                //send_byte_via_serial(VALUE,count);
             }
         } 
     }
@@ -324,35 +328,7 @@ void animate_adc_value(uint8_t row,
      1 == row ? position[0]++ : position[1]++;           
 }
 
-/**
- * @brief Точка входа прошивки.
- */
-void main(void) {
-    lcd_display_init();
-    load_animation_symbols();    
-    while (true) {
-        CLRWDT();        
-        print_adc_value(1,
-                TEMP_SENSOR_PIN,
-                TEMP_SENSOR_INIT_VALUE,
-                TEMP_SENSOR_STEP_VALUE,
-                TEMP_SENSOR_LIBRARY_MAX);
-        animate_adc_value(1,
-                TEMP_SENSOR_INIT_VALUE,
-                TEMP_SENSOR_STEP_VALUE,
-                TEMP_SENSOR_LIBRARY_MAX);        
-        print_adc_value(2,
-                LIGHT_SENSOR_PIN,
-                LIGHT_SENSOR_INIT_VALUE,
-                LIGHT_SENSOR_STEP_VALUE,
-                LIGHT_SENSOR_LIBRARY_MAX);
-        animate_adc_value(2,
-                LIGHT_SENSOR_INIT_VALUE,
-                LIGHT_SENSOR_STEP_VALUE,
-                LIGHT_SENSOR_LIBRARY_MAX);
-        __delay_ms(500);       
-    }
-}
+
 
 
 

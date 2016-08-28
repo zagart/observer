@@ -11,12 +11,15 @@
   <url>http://maven.apache.org</url>
 
   <properties>
-    <project.build.sourceEncoding>windows-1251</project.build.sourceEncoding>
+    <main.class>by.grodno.zagart.observer.localapp.Main</main.class>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <commons.lang.version>2.6</commons.lang.version>
     <log4j.version>1.2.17</log4j.version>
     <junit.version>4.11</junit.version>
     <mysql.version>5.1.6</mysql.version>
     <exec.mvn>1.2.1</exec.mvn>
+    <maven.jar.version>3.0.2</maven.jar.version>
+    <maven.shade.version>2.4.3</maven.shade.version>
   </properties>
 
   <dependencies>
@@ -59,12 +62,46 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>${exec.mvn}</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <mainClass>by.grodno.zagart.observer.localapp.Main</mainClass>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven.jar.version}</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>${main.class}</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>${maven.shade.version}</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>${main.class}</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

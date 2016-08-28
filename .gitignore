@@ -7,6 +7,7 @@ localapp/.idea/
 localapp/.idea/libraries/
 localapp/target/
 localapp/*.iml
+localapp/dependency-reduced-pom.xml
 firmware#1/build/
 firmware#1/debug/
 firmware#1/dist/
@@ -14,3 +15,4 @@ firmware#1/nbproject/
 firmware#1/Makefile
 firmware#1/*.WORKSPACE
 firmware#1/*.PDSBAK
+win_localapp/
