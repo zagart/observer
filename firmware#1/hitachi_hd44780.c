@@ -51,8 +51,12 @@ void animate_adc_value(uint8_t row,
                        uint8_t step,
                        uint8_t limit);
 
-//текущее значение АЦП
+//статические значения, связанные с АЦП
 static uint8_t adc_value = 0;
+static uint8_t temp = 0;
+static uint8_t light = 0;
+static uint8_t sent_temp = 0;
+static uint8_t sent_light = 0;
 
 /**
  * @brief Метод для отсылки данных! встроенному контроллеру
@@ -168,6 +172,7 @@ void lcd_display_init() {
     send_command_to_lcd(0x38);
     send_command_to_lcd(0x06);
     send_command_to_lcd(0x0C);
+    load_animation_symbols();
 }
 
 /**
@@ -246,13 +251,15 @@ void print_adc_value(uint8_t row,
     adc_value = get_adc_value(contact);
     uint8_t generated_adc_value = 0;
     uint8_t count = 0;
-    uint8_t temp = 0; 
+    uint8_t temporary = 0; 
     1 == row ? set_cursor(1, 13) : set_cursor(2, 14);
     for (count = 0; count < limit; ++count) {
         generated_adc_value = adc_value_generator(count, initial_value, step);
         if ((adc_value - ADC_ERROR_VALUE <= generated_adc_value) && 
                 (adc_value + ADC_ERROR_VALUE >= generated_adc_value)) {
             if (count < 10) {
+                send_data();
+                update_data(row, count);
                 send_byte_to_lcd(0x20);
                 generate_numeral(count);
                 if (1 == contact) {
@@ -262,8 +269,9 @@ void print_adc_value(uint8_t row,
                     send_byte_to_lcd(0x25);
                     send_byte_to_lcd(0x20);
                 }
-                //send_byte_via_serial(VALUE,count);
             } else if (count < 100) {
+                send_data();
+                update_data(row, count);
                 generate_numeral((uint8_t)(count/10));
                 generate_numeral((uint8_t)(count%10));
                 if (1 == contact) {
@@ -273,11 +281,12 @@ void print_adc_value(uint8_t row,
                     send_byte_to_lcd(0x25);
                     send_byte_to_lcd(0x20);
                 }
-                //send_byte_via_serial(VALUE,count);
-            } else {
-                temp = (uint8_t)(count/10);
-                generate_numeral((uint8_t)(temp/10));
-                generate_numeral((uint8_t)(temp%10));
+            } else if (count <= UINT8_MAX) {
+                send_data();
+                update_data(row, count);
+                temporary = (uint8_t)(count/10);
+                generate_numeral((uint8_t)(temporary/10));
+                generate_numeral((uint8_t)(temporary%10));
                 generate_numeral((uint8_t)(count%10));
                 if (1 == contact) {
                     send_byte_to_lcd(0xDF);
@@ -286,11 +295,52 @@ void print_adc_value(uint8_t row,
                     send_byte_to_lcd(0x25);
                     send_byte_to_lcd(0x20);
                 }
-                //send_byte_via_serial(VALUE,count);
             }
         } 
     }
     
+}
+
+/**
+ * Обновление данных, полученных с АЦП. Номер строки, в которую
+ * будет выведен, фактически определяет тип данных. Если печатается
+ * первая строка, то обновляется значение температуры, если вторая -
+ * то освещенности.
+ * 
+ * @param row Номер строки LCD-дисплея.
+ * @param value Новое значение.
+ */
+void update_data(uint8_t row, uint8_t value) {
+    if (1 == row) {
+        temp = value;
+    } else if (2 == row) {
+        light = value;
+    }
+}
+
+/**
+ * Метод выполняет проверку. В случае, если данные, отправленные на 
+ * последовательный порт, устарели, то отправляются новые. Устравшим 
+ * является значение, отличающееся от предыдущего отправленного на 
+ * число большее, чем константы TEMP_REACTION_VALUE для температуры и 
+ * LIGHT_REACTION_VALUE - для освещенности.
+ */
+void send_data() {
+    if (sent_temp <= temp - TEMP_REACTION_VALUE ||
+            sent_temp >= temp + TEMP_REACTION_VALUE) {
+        send_message_via_serial(STAND_NUMBER,
+                TEMP_SENSOR, 
+                TEMP_CHANGE, 
+                temp);
+        sent_temp = temp;
+    } else if (sent_light <= light - LIGHT_REACTION_VALUE ||
+            sent_light >= light + LIGHT_REACTION_VALUE) {
+        send_message_via_serial(STAND_NUMBER, 
+                LIGHT_SENSOR, 
+                LIGHT_CHANGE, 
+                light);
+        sent_light = light;
+    }
 }
 
 /**
@@ -325,6 +375,32 @@ void animate_adc_value(uint8_t row,
         }
     } 
      1 == row ? position[0]++ : position[1]++;           
+}
+
+/**
+ * За один цикл выполнения метод отрисовывает одно деление
+ * температуры и освещенности на LCD-дисплей, а также их
+ * текущие численные значения.
+ */
+void process_LCD() {
+        print_adc_value(1,
+                TEMP_SENSOR_PIN,
+                TEMP_SENSOR_INIT_VALUE,
+                TEMP_SENSOR_STEP_VALUE,
+                TEMP_SENSOR_LIBRARY_MAX);
+        animate_adc_value(1,
+                TEMP_SENSOR_INIT_VALUE,
+                TEMP_SENSOR_STEP_VALUE,
+                TEMP_SENSOR_LIBRARY_MAX);        
+        print_adc_value(2,
+                LIGHT_SENSOR_PIN,
+                LIGHT_SENSOR_INIT_VALUE,
+                LIGHT_SENSOR_STEP_VALUE,
+                LIGHT_SENSOR_LIBRARY_MAX);
+        animate_adc_value(2,
+                LIGHT_SENSOR_INIT_VALUE,
+                LIGHT_SENSOR_STEP_VALUE,
+                LIGHT_SENSOR_LIBRARY_MAX);
 }
 
 

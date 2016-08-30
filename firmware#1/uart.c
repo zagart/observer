@@ -108,11 +108,11 @@ void send_message_via_serial(uint8_t stand_number,
                              uint8_t module,
                              uint8_t event,
                              uint8_t value) {
-    send_byte_via_serial(MSG_START);
+    send_byte_via_serial(MSG_HEAD);
     send_byte_via_serial(stand_number);
     send_byte_via_serial(module);
     send_byte_via_serial(event);
     send_byte_via_serial(value);
-    send_byte_via_serial(MSG_END);
+    send_byte_via_serial(MSG_TAIL);
 }
 

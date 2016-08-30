@@ -14,6 +14,8 @@
 //константы LCD-дисплея
 #define LCD_ROWS_MAX 2
 #define LCD_COLUMNS_MAX 16
+#define TEMP_REACTION_VALUE 2
+#define LIGHT_REACTION_VALUE 3
 void send_byte_to_lcd(uint8_t value);
 void send_command_to_lcd(uint8_t value);
 void set_cursor(uint8_t y, uint8_t x);
@@ -36,6 +38,8 @@ void print_adc_value(uint8_t row,
                        uint8_t initial_value,            
                        uint8_t step,
                        uint8_t limit);
+void update_data(uint8_t row, uint8_t value);
+void send_data();
 void animate_adc_value(uint8_t row,           
                        uint8_t initial_value,            
                        uint8_t step,

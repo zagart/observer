@@ -44,7 +44,7 @@
 #define FERR 202
 #define NO_MSG 203
 #define SYSTEM_EXIT 204
-#define MSG_START 205
-#define MSG_END 206
+#define MSG_HEAD 205
+#define MSG_TAIL 206
 #endif
 
