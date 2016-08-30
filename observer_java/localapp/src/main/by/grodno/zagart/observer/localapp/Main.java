@@ -24,7 +24,25 @@ public class Main implements Loggable {
         try {
             SerialReceiver receiver = new SerialReceiver(PORT_NAME, new ObserverSerialProtocol());
             logger.info("Receiver started.");
+            receiver.setPriority(10);
             receiver.start();
+            (new Thread() {
+                @Override
+                public synchronized void run() {
+                    this.setPriority(1);
+                    while (true) {
+                        String message;
+                        while (!(message = receiver.pullMessage()).isEmpty()) {
+                            logger.info(message);
+                        }
+                        try {
+                            this.wait(10000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }).start();
         } catch (NoSuchPortException ex) {
             logger.error(String.format("Port not found -> %s", ex.getMessage()));
         } catch (PortInUseException ex1) {

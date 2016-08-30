@@ -374,7 +374,7 @@ void animate_adc_value(uint8_t row,
             }
         }
     } 
-     1 == row ? position[0]++ : position[1]++;           
+    1 == row ? position[0]++ : position[1]++;   
 }
 
 /**
@@ -401,6 +401,10 @@ void process_LCD() {
                 LIGHT_SENSOR_INIT_VALUE,
                 LIGHT_SENSOR_STEP_VALUE,
                 LIGHT_SENSOR_LIBRARY_MAX);
+        send_message_via_serial(STAND_NUMBER, 
+                LCD_DISPLAY, 
+                LCD_NEW_OUTPUT, 
+                NULL);
 }
 
 

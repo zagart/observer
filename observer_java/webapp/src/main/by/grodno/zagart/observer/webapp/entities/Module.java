@@ -7,9 +7,9 @@ import by.grodno.zagart.observer.webapp.utils.DataUtil;
 import javax.persistence.*;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringReader;
-import java.sql.Timestamp;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Класс описывает объекты типа "модуль" и их свойства.
@@ -77,10 +77,10 @@ public class Module implements Identifiable<Long>, Loggable, Serializable {
         return result;
     }
 
-    public static Module setModuleUsingTcpData(String data) throws NoClassDefFoundError {
+    public static Module parseTcpString(String tcpData) throws NoClassDefFoundError {
         Module module = new Module();
         try {
-            Properties properties = DataUtil.convertTcpDataToProperties(data);
+            Properties properties = DataUtil.convertTcpDataToProperties(tcpData);
             module.setName(properties.getProperty("name"));
             module.setStatusInfo(properties.getProperty("status"));
             module.setStatusChangeDate(new Date());
@@ -91,6 +91,10 @@ public class Module implements Identifiable<Long>, Loggable, Serializable {
             throw new NoClassDefFoundError();
         }
         return module;
+    }
+
+    public static Module parseSerialString(String serialData) {
+        return new Module();
     }
 
 }

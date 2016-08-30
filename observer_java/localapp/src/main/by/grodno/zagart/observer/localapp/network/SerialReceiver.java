@@ -2,7 +2,7 @@ package by.grodno.zagart.observer.localapp.network;
 
 
 import by.grodno.zagart.observer.localapp.interfaces.Loggable;
-import by.grodno.zagart.observer.localapp.interfaces.Protocol;
+import by.grodno.zagart.observer.localapp.interfaces.SerialProtocol;
 import gnu.io.*;
 
 import java.io.IOException;
@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.TooManyListenersException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Класс предназначен для обработки данных, поступающих
@@ -29,12 +31,12 @@ public class SerialReceiver extends Thread implements Loggable {
     private final InputStream input; //Используем не буферизированный поток, так как только он корректно читает байт с
                                // последовательного порта (значение от 0 до 255). Вероятно, это связано с
                                // тем, что единственый байтовый тип Java - byte - знаковый и имеет границы [-128; 127].
-    private final Protocol protocol;
+    private final SerialProtocol protocol;
     private final int bufferSize;
+    private final int speed;
+    private BlockingQueue<String> inbox = new ArrayBlockingQueue<>(Byte.MAX_VALUE);
 
-
-
-    public SerialReceiver(String portName, Protocol protocol) throws NoSuchPortException,
+    public SerialReceiver(String portName, SerialProtocol protocol) throws NoSuchPortException,
             PortInUseException,
             IOException,
             UnsupportedCommOperationException,
@@ -44,43 +46,24 @@ public class SerialReceiver extends Thread implements Loggable {
         portInit();
         this.input = this.port.getInputStream();
         this.protocol = protocol;
-        this.bufferSize = protocol.getDataSize();
-    }
-
-    private void findPort(String portName) throws NoSuchPortException, PortInUseException {
-        Enumeration ports = CommPortIdentifier.getPortIdentifiers();
-        while (ports.hasMoreElements()) {
-            CommPortIdentifier identifier = (CommPortIdentifier)ports.nextElement();
-            if (identifier.getName().equals(portName)) {
-                this.identifier = identifier;
-                this.port = (SerialPort) this.identifier.open("SerialReceiver", 2000);
-            }
-        }
-        if (identifier == null) {
-            throw new NoSuchPortException();
-        }
-    }
-
-    private void portInit() throws UnsupportedCommOperationException {
-        port.setSerialPortParams(9600,
-                SerialPort.DATABITS_8,
-                SerialPort.STOPBITS_1,
-                SerialPort.PARITY_NONE);
-        port.setDTR(false);
-        port.setRTS(true);
+        this.bufferSize = protocol.getMessageLength();
+        this.speed = protocol.getSpeed();
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
         waitData();
     }
 
-    private void waitData() {
+    private synchronized void waitData() {
         try {
             List<Integer> data;
             while (input != null) {
-                data = readBytes(bufferSize);
-                protocol.process(data);
+                data = readBytes();
+                String result = protocol.process(data);
+                if (!result.isEmpty()) {
+                    inbox.offer(result);
+                }
                 this.wait(10);
             }
             this.port.close();
@@ -97,18 +80,20 @@ public class SerialReceiver extends Thread implements Loggable {
         }
     }
 
-    public List<Integer> readBytes(int size) throws IOException {
+    private List<Integer> readBytes() throws IOException {
         List<Integer> bytes = new ArrayList<>();
         int value;
         int counter = 0;
-        while (counter++ < size && ((value = readByte()) != -1)) {
-            bytes.add(value);
+        if (input.available() >= bufferSize) {
+            while (counter++ < bufferSize && ((value = readByte()) != -1)) {
+                bytes.add(value);
+            }
         }
         return bytes;
     }
 
     private int readByte() throws IOException {
-        if (input != null && input.available() > 0) {
+        if (input != null) {
             try {
                 return input.read();
             } catch (IOException ex) {
@@ -121,6 +106,34 @@ public class SerialReceiver extends Thread implements Loggable {
         return -1;
     }
 
+    private void portInit() throws UnsupportedCommOperationException {
+        port.setSerialPortParams(speed,
+                SerialPort.DATABITS_8,
+                SerialPort.STOPBITS_1,
+                SerialPort.PARITY_NONE);
+        port.setDTR(false);
+        port.setRTS(true);
+    }
 
+    private void findPort(String portName) throws NoSuchPortException, PortInUseException {
+        Enumeration ports = CommPortIdentifier.getPortIdentifiers();
+        while (ports.hasMoreElements()) {
+            CommPortIdentifier identifier = (CommPortIdentifier)ports.nextElement();
+            if (identifier.getName().equals(portName)) {
+                this.identifier = identifier;
+                this.port = (SerialPort) this.identifier.open("SerialReceiver", 2000);
+            }
+        }
+        if (identifier == null) {
+            throw new NoSuchPortException();
+        }
+    }
+
+    public String pullMessage() {
+        if (!inbox.isEmpty()) {
+            return inbox.poll();
+        }
+        return "";
+    }
 
 }

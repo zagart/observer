@@ -72,7 +72,7 @@ public class Stand implements Identifiable<Long>, Loggable, Serializable {
         this.moduleList.add(module);
     }
 
-    public static Stand setStandUsingTcpData(String tcpData) throws NoClassDefFoundError {
+    public static Stand parseTcpString(String tcpData) throws NoClassDefFoundError {
         Stand stand = new Stand();
         try {
             Properties properties = DataUtil.convertTcpDataToProperties(tcpData);
@@ -85,6 +85,10 @@ public class Stand implements Identifiable<Long>, Loggable, Serializable {
             throw new NoClassDefFoundError();
         }
         return stand;
+    }
+
+    public static Stand parseSerialString(String serialData) {
+        return new Stand();
     }
 
 }

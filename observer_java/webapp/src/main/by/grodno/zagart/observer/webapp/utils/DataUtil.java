@@ -8,11 +8,9 @@ import by.grodno.zagart.observer.webapp.services.impl.StandServiceImpl;
 import org.apache.commons.lang.RandomStringUtils;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Класс с методами для более эффективного манипулирования
@@ -39,8 +37,8 @@ public class DataUtil implements Loggable {
     public static void saveDataFromTcp(String data) {
         ModuleServiceImpl moduleService = new ModuleServiceImpl();
         StandServiceImpl standService = new StandServiceImpl();
-        Module module = Module.setModuleUsingTcpData(data);
-        Stand stand = Stand.setStandUsingTcpData(data);
+        Module module = Module.parseTcpString(data);
+        Stand stand = Stand.parseTcpString(data);
         moduleService.save(module);
         standService.save(stand);
         stand.addModule(module);
