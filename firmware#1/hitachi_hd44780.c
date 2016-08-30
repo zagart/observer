@@ -168,7 +168,6 @@ void lcd_display_init() {
     send_command_to_lcd(0x38);
     send_command_to_lcd(0x06);
     send_command_to_lcd(0x0C);
-    send_byte_via_serial(STATUS,STAND_INIT);
 }
 
 /**

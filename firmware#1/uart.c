@@ -44,9 +44,10 @@ void usart_init() {
  * @brief Метод для отправки байта через последовательный
  * порт.
  *
+ * @param type Тип отправляемого байта.
  * @param value Байт для отправки.
  */
-void send_byte_via_serial(uint8_t type, uint8_t value) {
+void send_byte_via_serial(uint8_t value) {
     //инициализируем USART-модуль
     usart_init();
     //разрешаем передачу
@@ -92,5 +93,26 @@ uint8_t read_byte_from_serial() {
         return msg;
     }
     return msg;
+}
+
+/**
+ * @brief Метод отправляет на COM-порт последовательность
+ * байтов в порядке и виде, понятном для получателя (localapp).
+ * 
+ * @param stand_number Номер стенда, инициализировавшего передачу.
+ * @param module Наименование модуля, вызвавшего событие.
+ * @param event Тип события.
+ * @param value Значение события (NULL константа, если такового нет).
+ */
+void send_message_via_serial(uint8_t stand_number,                         
+                             uint8_t module,
+                             uint8_t event,
+                             uint8_t value) {
+    send_byte_via_serial(MSG_START);
+    send_byte_via_serial(stand_number);
+    send_byte_via_serial(module);
+    send_byte_via_serial(event);
+    send_byte_via_serial(value);
+    send_byte_via_serial(MSG_END);
 }
 

@@ -1,7 +1,8 @@
 package by.grodno.zagart.observer.localapp;
 
 import by.grodno.zagart.observer.localapp.interfaces.Loggable;
-import by.grodno.zagart.observer.localapp.network.Serial;
+import by.grodno.zagart.observer.localapp.network.ObserverSerialProtocol;
+import by.grodno.zagart.observer.localapp.network.SerialReceiver;
 import by.grodno.zagart.observer.localapp.network.TcpClient;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -17,17 +18,17 @@ import java.util.TooManyListenersException;
 public class Main implements Loggable {
 
     public static final int ATTEMPTS_LIMIT = 5;
+    public static final String PORT_NAME = "COM1";
 
     public static void main(String[] args) {
         try {
-//            Serial sender = new Serial("COM1", Serial.PortType.TRANSMITTER);
-            Serial receiver = new Serial("COM1", Serial.PortType.RECEIVER);
-            System.out.println("Receiver started.");
+            SerialReceiver receiver = new SerialReceiver(PORT_NAME, new ObserverSerialProtocol());
+            logger.info("Receiver started.");
             receiver.start();
         } catch (NoSuchPortException ex) {
-            logger.error("Port not found -> %s" + ex.getMessage());
+            logger.error(String.format("Port not found -> %s", ex.getMessage()));
         } catch (PortInUseException ex1) {
-            logger.error(String.format("Port %s already in use -> %s", "{boom}", ex1.getMessage()));
+            logger.error(String.format("Port %s already in use -> %s", PORT_NAME, ex1.getMessage()));
         } catch (IOException ex2) {
             logger.error(String.format("Failed to open input stream -> %s", ex2.getMessage()));
         } catch (UnsupportedCommOperationException ex3) {

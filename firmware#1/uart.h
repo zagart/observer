@@ -14,5 +14,10 @@
 //константы файла USART-модуля
 #define USART_SPD_9600 25
 void usart_init();
-void send_byte_via_serial(uint8_t type, uint8_t value);
+void send_byte_via_serial(uint8_t value);
+uint8_t read_byte_from_serial();
+void send_message_via_serial(uint8_t stand_number,                         
+                             uint8_t module,
+                             uint8_t event,
+                             uint8_t value);
 #endif

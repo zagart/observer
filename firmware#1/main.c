@@ -11,10 +11,14 @@
  * @brief Точка входа прошивки.
  */
 void main(void) {
-    uint8_t running = 0;
+    send_message_via_serial(STAND_NUMBER,
+            STAND_MC,
+            INIT,
+            NULL);
+    while(TRUE){CLRWDT();};
     lcd_display_init();
     load_animation_symbols();    
-    while (SYSTEM_EXIT != running) {
+    while (TRUE) {
         CLRWDT();        
         print_adc_value(1,
                 TEMP_SENSOR_PIN,
@@ -35,7 +39,7 @@ void main(void) {
                 LIGHT_SENSOR_STEP_VALUE,
                 LIGHT_SENSOR_LIBRARY_MAX);
         __delay_ms(500);
-        send_byte_via_serial(STATUS,STAND_INIT);
+        
         __delay_ms(500);
     }
 }
