@@ -1,5 +1,6 @@
 package by.grodno.zagart.observer.localapp.interfaces;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -11,6 +12,6 @@ public interface Protocol {
 
     int getDataSize();
 
-    void process(List<Integer> data);
+    boolean process(List<Integer> data) throws IOException;
 
 }
