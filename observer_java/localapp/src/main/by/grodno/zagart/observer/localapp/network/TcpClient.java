@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Properties;
 
 /**
  * Класс, отвечающий за сетевое соединение(TCP) на стороне
@@ -18,28 +17,41 @@ import java.util.Properties;
  */
 public class TcpClient extends Thread implements Closeable {
 
-    private String hostName = "localhost";
-    private int hostPort = 8080;
+    private String hostName;
+    private int hostPort;
     private Socket socket;
-    private Properties data;
+    private BufferedReader input;
+    private ObjectOutputStream output;
+    private boolean serverReady = false;
 
-    public TcpClient(String hostName, int hostPort, Properties data) throws IOException {
+    public TcpClient(String hostName, int hostPort) throws IOException {
         super("TcpClient");
+        init(hostName, hostPort);
+    }
+
+    private void init(String hostName, int hostPort) throws IOException {
         this.hostName = hostName;
         this.hostPort = hostPort;
-        this.data = data;
         socket = new Socket(hostName, hostPort);
-        this.start();
+        input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        output = new ObjectOutputStream(socket.getOutputStream());
     }
 
     @Override
-    public synchronized void run() {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())
-        ) {
-            sendPropertiesViaTcp(in, out, data);
-            printResponse(in.readLine());
-            this.wait(10);
+    public void run() {
+        processRun();
+    }
+
+    private synchronized void processRun() {
+        try {
+            while (!serverReady) {
+                String response = input.readLine();
+                if (response.equals("ready")) {
+                    printResponse(response);
+                    serverReady = true;
+                }
+                this.wait(10);
+            }
         } catch (IOException ex) {
             logger.error(String.format("%s: Error when reading response -> %s",
                     this.getClass().getSimpleName(),
@@ -48,27 +60,21 @@ public class TcpClient extends Thread implements Closeable {
             logger.error(String.format("%s: Error when thread waiting -> %s",
                     this.getClass().getSimpleName(),
                     ex1.getMessage()));
-        } finally {
-            closeCloseable(socket);
         }
-
     }
 
     @Override
     public void close() {
+        closeCloseable(input);
+        closeCloseable(output);
         closeCloseable(socket);
     }
 
-    private boolean sendPropertiesViaTcp(BufferedReader in,
-                                         ObjectOutputStream out,
-                                         Properties properties) throws IOException {
-        String response;
-        while ((response = in.readLine()) != null) {
-            printResponse(response);
-            if (response.equals("ready")) {
-                out.writeObject(properties);
-                return true;
-            }
+    public boolean writeObject(Object obj) throws IOException {
+        if (serverReady) {
+            output.writeObject(obj);
+            serverReady = false;
+            return true;
         }
         return false;
     }

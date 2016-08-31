@@ -46,31 +46,32 @@ public class DataUtil implements Loggable {
         standService.update(stand);
     }
 
-    public static Properties convertTcpDataToProperties(final String tcpData) throws IOException {
+    public static Properties convertStringToProperties(final String strProperties) throws IOException {
         Properties properties = new Properties();
         String key;
         String value;
         int firstSeparator = -1;
         int secondSeparator;
-        int endSeparator = tcpData.lastIndexOf("}");
+        int endSeparator = strProperties.lastIndexOf("}");
         try {
             while (true) {
-                secondSeparator = tcpData.indexOf('=', firstSeparator);
-                key = tcpData.substring(2 + firstSeparator, secondSeparator);
+                secondSeparator = strProperties.indexOf('=', firstSeparator);
+                key = strProperties.substring(2 + firstSeparator, secondSeparator);
                 firstSeparator = secondSeparator;
-                secondSeparator = tcpData.indexOf(',', firstSeparator);
+                secondSeparator = strProperties.indexOf(',', firstSeparator);
                 if (secondSeparator < 0) {
-                    value = tcpData.substring(1 + firstSeparator, endSeparator);
+                    value = strProperties.substring(1 + firstSeparator, endSeparator);
                     properties.put(key, value);
                     break;
                 }
-                value = tcpData.substring(1 + firstSeparator, secondSeparator);
+                value = strProperties.substring(1 + firstSeparator, secondSeparator);
                 firstSeparator = secondSeparator;
                 properties.put(key, value);
             }
         } catch (StringIndexOutOfBoundsException ex) {
-            logger.error("convertTcpDataToProperties(final String tcpData){...}: " +
-                    "Wrong data format for converting!");
+            logger.error(String.format("%s: Wrong data format for converting! -> %s",
+                    "convertStringToProperties",
+                    ex.getMessage()));
             throw new NoClassDefFoundError();
         }
         return properties;

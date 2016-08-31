@@ -14,7 +14,6 @@
     <properties>
         <project.name>webapp</project.name>
         <main.class>by.grodno.zagart.observer.webapp.Main</main.class>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
@@ -59,7 +58,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.jar.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -73,7 +71,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven.shade.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

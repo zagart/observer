@@ -2,11 +2,13 @@ package by.grodno.zagart.observer.webapp.network;
 
 import by.grodno.zagart.observer.webapp.interfaces.Closeable;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Properties;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Класс, отвечающий за сетевое соединение на стороне
@@ -19,10 +21,15 @@ public class TcpListener extends Thread implements Closeable {
 
     private Socket socket;
     private static int clientsQuantity = 0;
+    private ObjectInputStream input;
+    private PrintWriter output;
+    private Queue<Object> storage = new ArrayBlockingQueue<>(Byte.MAX_VALUE);
 
-    public TcpListener(Socket socket) {
+    public TcpListener(Socket socket) throws IOException {
         super("TcpListener");
         this.socket = socket;
+        this.input = new ObjectInputStream(socket.getInputStream());
+        this.output = new PrintWriter(socket.getOutputStream(), true);
         clientsQuantity++;
     }
 
@@ -31,19 +38,30 @@ public class TcpListener extends Thread implements Closeable {
     }
 
     @Override
-    public synchronized void run() {
-        try (ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)
-        ) {
-            out.println("ready");
-            Properties data = getPropertiesFromTcp(in);
-            if (data != null) {
-                out.println("success -> " + data);
-            } else {
-                out.println("failed");
+    public void run() {
+        processRun();
+    }
+
+    @Override
+    public void close() {
+        closeCloseable(input);
+        closeCloseable(output);
+        closeCloseable(socket);
+    }
+
+    private synchronized void processRun() {
+        try {
+            output.println("ready");
+            while (true) {
+                Object obj;
+                if (input.available() > 0 && (obj = readObject()) != null) {
+                    storage.offer(obj);
+                    output.println("ready");
+
+                }
+                this.wait(10);
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
             logger.error(String.format("%s: I/O exception -> %s",
                     this.getClass().getSimpleName(),
                     ex.getMessage()));
@@ -51,21 +69,27 @@ public class TcpListener extends Thread implements Closeable {
             logger.error(String.format("%s: UID serial version not correct! -> %s",
                     this.getClass().getSimpleName(),
                     ex1.getMessage()));
-        } finally {
-            closeCloseable(socket);
+        } catch (InterruptedException ex1) {
+            logger.error(String.format("%s: Attempt to get monitor when thread waiting -> %s",
+                    this.getName(),
+                    ex1.getMessage()));
         }
     }
 
-    @Override
-    public void close() {
-        closeCloseable(socket);
+    private Object readObject() throws IOException, ClassNotFoundException, InterruptedException {
+        try {
+            return input.readObject();
+        } catch (EOFException ex) {
+            logger.error(String.format("%s: Can't read object, no objects to read.",
+                    this.getName()));
+            this.wait(1000);
+            return false;
+        }
     }
 
-    private Properties getPropertiesFromTcp(ObjectInputStream in) throws ClassNotFoundException, IOException {
-        Object obj = in.readObject();
-        if (obj instanceof Properties) {
-            Properties properties = (Properties) obj;
-            return properties;
+    public Object pullObject() {
+        if (!storage.isEmpty()) {
+            return storage.poll();
         }
         return null;
     }

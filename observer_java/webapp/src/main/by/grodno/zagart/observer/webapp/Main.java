@@ -1,12 +1,11 @@
 package by.grodno.zagart.observer.webapp;
 
-import by.grodno.zagart.observer.webapp.interfaces.Loggable;
-import by.grodno.zagart.observer.webapp.network.ServerMain;
+import by.grodno.zagart.observer.webapp.network.TcpServerRunner;
 
-public class Main implements Loggable {
+public class Main {
 
     public static void main(String...args) {
-        new ServerMain().start();
+        new TcpServerRunner().start();
     }
 
 }

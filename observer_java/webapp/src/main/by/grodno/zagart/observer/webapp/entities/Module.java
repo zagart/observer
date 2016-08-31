@@ -8,7 +8,6 @@ import javax.persistence.*;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -80,7 +79,7 @@ public class Module implements Identifiable<Long>, Loggable, Serializable {
     public static Module parseTcpString(String tcpData) throws NoClassDefFoundError {
         Module module = new Module();
         try {
-            Properties properties = DataUtil.convertTcpDataToProperties(tcpData);
+            Properties properties = DataUtil.convertStringToProperties(tcpData);
             module.setName(properties.getProperty("name"));
             module.setStatusInfo(properties.getProperty("status"));
             module.setStatusChangeDate(new Date());
@@ -94,7 +93,21 @@ public class Module implements Identifiable<Long>, Loggable, Serializable {
     }
 
     public static Module parseSerialString(String serialData) {
-        return new Module();
+        Module module = new Module();
+        try {
+            Properties properties = DataUtil.convertStringToProperties(serialData);
+            module.setName(properties.getProperty("module"));
+            module.setStatusInfo(String.format("%s Новое значение -> %s.",
+                    properties.getProperty("event"),
+                    properties.getProperty("value")));
+            module.setStatusChangeDate(new Date());
+        } catch (IOException ex) {
+            logger.error("Module class. Convertion (string-to-properties) error: " + ex.getStackTrace());
+        }
+        if (module.getName() == null || module.getStatusInfo() == null) {
+            throw new NoClassDefFoundError();
+        }
+        return module;
     }
 
 }

@@ -75,7 +75,7 @@ public class Stand implements Identifiable<Long>, Loggable, Serializable {
     public static Stand parseTcpString(String tcpData) throws NoClassDefFoundError {
         Stand stand = new Stand();
         try {
-            Properties properties = DataUtil.convertTcpDataToProperties(tcpData);
+            Properties properties = DataUtil.convertStringToProperties(tcpData);
             stand.setNumber(properties.getProperty("number"));
             stand.setDescription(properties.getProperty("description"));
         } catch (IOException ex) {
@@ -88,7 +88,18 @@ public class Stand implements Identifiable<Long>, Loggable, Serializable {
     }
 
     public static Stand parseSerialString(String serialData) {
-        return new Stand();
+        Stand stand = new Stand();
+        try {
+            Properties properties = DataUtil.convertStringToProperties(serialData);
+            stand.setNumber(properties.getProperty("stand"));
+            stand.setDescription(properties.getProperty("description"));
+        } catch (IOException ex) {
+            logger.error("Stand class. Convertion (string-to-properties) error: " + ex.getStackTrace());
+        }
+        if (stand.getNumber() == null) {
+            throw new NoClassDefFoundError();
+        }
+        return stand;
     }
 
 }

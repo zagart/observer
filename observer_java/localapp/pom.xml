@@ -7,21 +7,27 @@
       <artifactId>observer</artifactId>
       <version>1.0.0</version>
   </parent>
-
    <artifactId>localapp</artifactId>
    <packaging>jar</packaging>
 
   <properties>
-	<project.name>localapp</project.name>
-    <main.class>by.grodno.zagart.observer.localapp.Main</main.class>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <project.name>localapp</project.name>
+      <main.class>by.grodno.zagart.observer.localapp.Main</main.class>
   </properties>
 
   <dependencies>
     <dependency>
+        <groupId>by.grodno.zagart.observer</groupId>
+         <artifactId>webapp</artifactId>
+        <type>jar</type>
+        <version>1.0.0</version>
+        <scope>system</scope>
+        <systemPath>${base.dir}/webapp/target/webapp.jar</systemPath>
+    </dependency>
+
+    <dependency>
       <groupId>org.rxtx</groupId>
       <artifactId>rxtx</artifactId>
-      <version>2.1.7</version>
     </dependency>
 
     <dependency>
@@ -60,16 +66,7 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>${maven.jar.version}</version>
         <configuration>
           <archive>
             <manifest>
@@ -83,7 +80,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>${maven.shade.version}</version>
         <executions>
           <execution>
             <phase>package</phase>

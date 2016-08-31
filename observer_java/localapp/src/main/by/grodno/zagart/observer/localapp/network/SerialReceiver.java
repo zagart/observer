@@ -7,12 +7,8 @@ import gnu.io.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.TooManyListenersException;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * Класс предназначен для обработки данных, поступающих
@@ -34,7 +30,7 @@ public class SerialReceiver extends Thread implements Loggable {
     private final SerialProtocol protocol;
     private final int bufferSize;
     private final int speed;
-    private BlockingQueue<String> inbox = new ArrayBlockingQueue<>(Byte.MAX_VALUE);
+    private Queue<String> inbox = new ArrayBlockingQueue<>(Byte.MAX_VALUE);
 
     public SerialReceiver(String portName, SerialProtocol protocol) throws NoSuchPortException,
             PortInUseException,
