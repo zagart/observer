@@ -1,6 +1,8 @@
-package by.grodno.zagart.observer.localapp.network;
+package by.grodno.zagart.observer.localapp.classes;
 
-import by.grodno.zagart.observer.webapp.classes.ObserverNetworkPackage;
+import by.grodno.zagart.observer.localapp.network.SerialReceiver;
+import by.grodno.zagart.observer.localapp.network.TcpClient;
+import by.grodno.zagart.observer.localapp.protocols.ObserverSerialProtocol;
 import by.grodno.zagart.observer.webapp.entities.Module;
 import by.grodno.zagart.observer.webapp.entities.Stand;
 import by.grodno.zagart.observer.localapp.interfaces.Loggable;
@@ -62,15 +64,14 @@ public class TcpClientRunner extends Thread implements Loggable {
             @Override
             public synchronized void run() {
                 try {
+                    TcpClient tcp = new TcpClient("localhost", 8080);
+                    tcp.start();
                     while (true) {
                         String message;
                         if (!(message = receiver.pullMessage()).isEmpty()) {
                             Module module = Module.parseSerialString(message);
                             Stand stand = Stand.parseSerialString(message);
                             ObserverNetworkPackage netPackage = new ObserverNetworkPackage(module, stand);
-                            TcpClient tcp;
-                            tcp = new TcpClient("localhost", 8080);
-                            tcp.start();
                             boolean success = false;
                             while (!success) {
                                 success = tcp.writeObject(netPackage);

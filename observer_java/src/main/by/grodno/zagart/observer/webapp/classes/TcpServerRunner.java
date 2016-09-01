@@ -1,7 +1,8 @@
-package by.grodno.zagart.observer.webapp.network;
+package by.grodno.zagart.observer.webapp.classes;
 
-import by.grodno.zagart.observer.webapp.classes.ObserverNetworkPackage;
+import by.grodno.zagart.observer.localapp.classes.ObserverNetworkPackage;
 import by.grodno.zagart.observer.webapp.interfaces.Loggable;
+import by.grodno.zagart.observer.webapp.network.TcpListener;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -20,12 +21,11 @@ public class TcpServerRunner extends Thread implements Loggable {
         tcpServerRun();
     }
 
-    private void tcpServerRun() {
+    private synchronized void tcpServerRun() {
         System.out.println("Server started. Waiting for connections...");
         try (ServerSocket socket = new ServerSocket(8080)) {
             TcpListener server;
-            while (true) {
-                server = new TcpListener(socket.accept());
+            while ((server = new TcpListener(socket.accept())) != null) {
                 System.out.println("New connection. Total quantity of connections -> " + TcpListener.getClientsQuantity());
                 server.start();
                 handleTcpData(server);
@@ -42,15 +42,13 @@ public class TcpServerRunner extends Thread implements Loggable {
             @Override
             public synchronized void run() {
                 try {
-                    boolean success = false;
-                    while (!success) {
+                    while (true) {
                         Object obj;
                         if ((obj = server.pullObject()) != null) {
                             if (isPackage(obj)) {
                                 logger.info(String.format("%s: New package received -> %s",
                                         this.getName(),
                                         obj.toString()));
-                                success = true;
                             }
                         }
                         this.wait(10);

@@ -1,16 +1,7 @@
-observer_java/webapp/.idea/
-observer_java/webapp/.idea/libraries/
-observer_java/webapp/target/
-observer_java/webapp/*.iml
-observer_java/webapp/dependency-reduced-pom.xml
-observer_java/localapp/.idea/
-observer_java/localapp/.idea/libraries/
-observer_java/localapp/target/
-observer_java/localapp/*.iml
-observer_java/localapp/dependency-reduced-pom.xml
 observer_java/.idea/
 observer_java/target/
 observer_java/*.iml
+observer_java/dependency-reduced-pom.xml
 firmware#1/build/
 firmware#1/debug/
 firmware#1/dist/

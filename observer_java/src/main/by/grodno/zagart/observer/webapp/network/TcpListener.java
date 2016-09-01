@@ -54,22 +54,24 @@ public class TcpListener extends Thread implements Closeable {
             output.println("ready");
             while (true) {
                 Object obj;
-                if (input.available() > 0 && (obj = readObject()) != null) {
+                if ((obj = readObject()) != null) {
                     storage.offer(obj);
                     output.println("ready");
-
                 }
                 this.wait(10);
             }
         } catch (IOException ex) {
+            clientsQuantity--;
             logger.error(String.format("%s: I/O exception -> %s",
                     this.getClass().getSimpleName(),
                     ex.getMessage()));
         } catch (ClassNotFoundException ex1) {
+            clientsQuantity--;
             logger.error(String.format("%s: UID serial version not correct! -> %s",
                     this.getClass().getSimpleName(),
                     ex1.getMessage()));
         } catch (InterruptedException ex1) {
+            clientsQuantity--;
             logger.error(String.format("%s: Attempt to get monitor when thread waiting -> %s",
                     this.getName(),
                     ex1.getMessage()));

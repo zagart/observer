@@ -1,4 +1,4 @@
-package by.grodno.zagart.observer.webapp.classes;
+package by.grodno.zagart.observer.localapp.classes;
 
 import by.grodno.zagart.observer.webapp.entities.Module;
 import by.grodno.zagart.observer.webapp.entities.Stand;

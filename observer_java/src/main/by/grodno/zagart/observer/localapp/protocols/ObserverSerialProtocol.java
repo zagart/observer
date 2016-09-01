@@ -1,4 +1,4 @@
-package by.grodno.zagart.observer.localapp.network;
+package by.grodno.zagart.observer.localapp.protocols;
 
 import by.grodno.zagart.observer.localapp.interfaces.Loggable;
 import by.grodno.zagart.observer.localapp.interfaces.SerialProtocol;
@@ -8,13 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static by.grodno.zagart.observer.localapp.network.ObserverSerialProtocol.Constant.MSG_HEAD;
-import static by.grodno.zagart.observer.localapp.network.ObserverSerialProtocol.Constant.MSG_TAIL;
+import static by.grodno.zagart.observer.localapp.protocols.ObserverSerialProtocol.Constant.MSG_HEAD;
+import static by.grodno.zagart.observer.localapp.protocols.ObserverSerialProtocol.Constant.MSG_TAIL;
 
 /**
  * Класс содержит набор констант и методы для обработки данных,
  * соответствующий правилам обмена данными через последовательный
- * порт единицами проекта Observer.
+ * порт единицами проекта Observer. Имплементация интерфейса
+ * SerialProtocol.
  */
 public class ObserverSerialProtocol implements SerialProtocol, Loggable {
 

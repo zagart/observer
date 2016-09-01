@@ -44,11 +44,13 @@ public class TcpClient extends Thread implements Closeable {
 
     private synchronized void processRun() {
         try {
-            while (!serverReady) {
-                String response = input.readLine();
-                if (response.equals("ready")) {
-                    printResponse(response);
-                    serverReady = true;
+            while (true) {
+                if (!serverReady) {
+                    String response = input.readLine();
+                    if (response.equals("ready")) {
+                        printResponse(response);
+                        serverReady = true;
+                    }
                 }
                 this.wait(10);
             }
