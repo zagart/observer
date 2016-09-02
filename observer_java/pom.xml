@@ -77,20 +77,20 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
                 <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>observer-runnable</finalName>
-                            <transformers>
-                                <transformer implementation="${maven.shade.transformer}">
-                                    <mainClass>${observer.entry.point}</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
+                    <!--<execution>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>shade</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<finalName>observer-runnable</finalName>-->
+                            <!--<transformers>-->
+                                <!--<transformer implementation="${maven.shade.transformer}">-->
+                                    <!--<mainClass>${observer.entry.point}</mainClass>-->
+                                <!--</transformer>-->
+                            <!--</transformers>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
                     <!--<execution>-->
                         <!--<phase>package</phase>-->
                         <!--<goals>-->
@@ -105,20 +105,20 @@
                             <!--</transformers>-->
                         <!--</configuration>-->
                     <!--</execution>-->
-                    <!--<execution>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>shade</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<finalName>webapp-runnable</finalName>-->
-                            <!--<transformers>-->
-                                <!--<transformer implementation="${maven.shade.transformer}">-->
-                                    <!--<mainClass>${webapp.entry.point}</mainClass>-->
-                                <!--</transformer>-->
-                            <!--</transformers>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>webapp-runnable</finalName>
+                            <transformers>
+                                <transformer implementation="${maven.shade.transformer}">
+                                    <mainClass>${webapp.entry.point}</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

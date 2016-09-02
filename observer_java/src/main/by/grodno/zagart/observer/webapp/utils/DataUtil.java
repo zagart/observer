@@ -2,10 +2,10 @@ package by.grodno.zagart.observer.webapp.utils;
 
 import by.grodno.zagart.observer.webapp.entities.Module;
 import by.grodno.zagart.observer.webapp.entities.Stand;
-import by.grodno.zagart.observer.webapp.interfaces.Loggable;
 import by.grodno.zagart.observer.webapp.services.impl.ModuleServiceImpl;
 import by.grodno.zagart.observer.webapp.services.impl.StandServiceImpl;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +16,9 @@ import java.util.Properties;
  * Класс с методами для более эффективного манипулирования
  * данными.
  */
-public class DataUtil implements Loggable {
+public class DataUtil {
+
+    public static final Logger logger = Logger.getLogger(DataUtil.class);
 
     public static Module getNewModule() {
         Module module = new Module();

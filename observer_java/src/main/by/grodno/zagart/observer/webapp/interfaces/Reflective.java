@@ -1,5 +1,7 @@
 package by.grodno.zagart.observer.webapp.interfaces;
 
+import org.apache.log4j.Logger;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -8,7 +10,9 @@ import java.lang.reflect.ParameterizedType;
  * Реализация этого интерфейса классом позволяет ему
  * использовать рефлексию.
  */
-public interface Reflective extends Loggable {
+public interface Reflective {
+
+    Logger logger = Logger.getLogger(Reflective.class);
 
     /**
      * Метод создает объект класса, который является параметром в

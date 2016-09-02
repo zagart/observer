@@ -1,6 +1,7 @@
 package by.grodno.zagart.observer.localapp.network;
 
-import by.grodno.zagart.observer.localapp.interfaces.Closeable;
+import by.grodno.zagart.observer.webapp.interfaces.Closeable;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,11 +12,11 @@ import java.net.Socket;
 /**
  * Класс, отвечающий за сетевое соединение(TCP) на стороне
  * клиента. Наследует интерфейс Closeable, который упрощает
- * освобождение ресурсов. Интерфейс Closeable также наследует
- * интерфейс Loggable, что позволяет и данному классу также
- * использовать логгер.
+ * освобождение ресурсов.
  */
 public class TcpClient extends Thread implements Closeable {
+
+    public static final Logger logger = Logger.getLogger(TcpClient.class);
 
     private String hostName;
     private int hostPort;
@@ -24,11 +25,27 @@ public class TcpClient extends Thread implements Closeable {
     private ObjectOutputStream output;
     private boolean serverReady = false;
 
+    /**
+     * Для создания объекта класса необходимы имя хоста и номер порта хоста.
+     *
+     * @param hostName Имя хоста.
+     * @param hostPort Имя порта хоста.
+     *
+     * @throws IOException
+     */
     public TcpClient(String hostName, int hostPort) throws IOException {
         super("TcpClient");
         init(hostName, hostPort);
     }
 
+    /**
+     * Метод конфигурирует объект класса и создает сокет на основе
+     * переданных данных.
+     *
+     * @param hostName Имя хоста.
+     * @param hostPort Номер порта хоста.
+     * @throws IOException
+     */
     private void init(String hostName, int hostPort) throws IOException {
         this.hostName = hostName;
         this.hostPort = hostPort;
@@ -39,12 +56,16 @@ public class TcpClient extends Thread implements Closeable {
 
     @Override
     public void run() {
-        processRun();
+        waitResponse();
     }
 
-    private synchronized void processRun() {
+    /**
+     * Метод ждет ответа от сервера, и, если сервер готов к приему данных,
+     * то устанавливает переменную serverReady в true.
+     */
+    private synchronized void waitResponse() {
         try {
-            while (true) {
+            while (input != null) {
                 if (!serverReady) {
                     String response = input.readLine();
                     if (response.equals("ready")) {
@@ -65,6 +86,10 @@ public class TcpClient extends Thread implements Closeable {
         }
     }
 
+    /**
+     * Метод освобождает ресурсы класса и закрывает сокет. После вызова этого
+     * метода класс перестает выполнять свои функции.
+     */
     @Override
     public void close() {
         closeCloseable(input);
@@ -72,6 +97,14 @@ public class TcpClient extends Thread implements Closeable {
         closeCloseable(socket);
     }
 
+    /**
+     * Если сервер готов к приему данных, то метод записывает в выходной
+     * поток, сериализованный объект.
+     *
+     * @param obj Сериализованный объект.
+     * @return
+     * @throws IOException
+     */
     public boolean writeObject(Object obj) throws IOException {
         if (serverReady) {
             output.writeObject(obj);
@@ -81,8 +114,14 @@ public class TcpClient extends Thread implements Closeable {
         return false;
     }
 
+    /**
+     * Метод выводит информацию о полученном от сервера ответе
+     * в определенном формате.
+     *
+     * @param response
+     */
     private void printResponse(String response) {
-        System.out.println(String.format("%s:%d -> %s", hostName, hostPort, response));
+        System.out.println(String.format("\n%s:%d -> %s", hostName, hostPort, response));
     }
 
 }

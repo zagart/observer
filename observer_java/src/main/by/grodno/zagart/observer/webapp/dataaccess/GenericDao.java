@@ -1,4 +1,4 @@
-package by.grodno.zagart.observer.webapp.dao;
+package by.grodno.zagart.observer.webapp.dataaccess;
 
 import java.io.Serializable;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * Интерфейс определяет методы, необходимые для классов
- * слоя DAO.
+ * слоя dataaccess.
  *
  * @param <T>
  * @param <PK>

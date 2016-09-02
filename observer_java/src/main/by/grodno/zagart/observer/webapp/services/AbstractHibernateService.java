@@ -1,9 +1,9 @@
 package by.grodno.zagart.observer.webapp.services;
 
-import by.grodno.zagart.observer.webapp.dao.GenericDao;
+import by.grodno.zagart.observer.webapp.dataaccess.GenericDao;
 import by.grodno.zagart.observer.webapp.interfaces.Identifiable;
-import by.grodno.zagart.observer.webapp.interfaces.Loggable;
 import by.grodno.zagart.observer.webapp.interfaces.Reflective;
+import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,9 +13,8 @@ import java.util.Set;
 import static by.grodno.zagart.observer.webapp.utils.HibernateUtil.*;
 
 /**
- * Абстрактный класс, аналогичный классу уровня DAO. Выполняет
- * задачи уровня service, используя уровень DAO. Наследует интерфейс
- * Loggable и выполняет логирование при помощи логгера log4j.
+ * Абстрактный класс, аналогичный классу слоя dataaccess. Выполняет
+ * задачи уровня service, используя уровень dataaccess.
  *
  * @param <T>
  * @param <PK>
@@ -25,9 +24,10 @@ public abstract class AbstractHibernateService
         <T extends Identifiable,
                 PK extends Serializable,
                 DAO extends GenericDao>
-        implements GenericService<T, PK>, Loggable, Reflective {
+        implements GenericService<T, PK>, Reflective {
 
     private GenericDao dao = (GenericDao) getGenericObject(2);
+    public final Logger logger = Logger.getLogger(dao.getClass());
     private final T entityObj;
 
     { entityObj = (T) getGenericObject(0); }

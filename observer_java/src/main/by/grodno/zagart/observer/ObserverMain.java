@@ -1,16 +1,16 @@
 package by.grodno.zagart.observer;
 
-import by.grodno.zagart.observer.localapp.classes.TcpClientRunner;
-import by.grodno.zagart.observer.webapp.classes.TcpServerRunner;
+import by.grodno.zagart.observer.localapp.classes.LocalAppRunner;
+import by.grodno.zagart.observer.webapp.classes.WepAppRunner;
 
-/**
- * Точка входа проекта.
- */
 public class ObserverMain {
 
+    /**
+     * Точка входа проекта.
+     */
     public static void main(String[] args) {
-        new TcpServerRunner().start();
-        new TcpClientRunner().start();
+        new WepAppRunner().start();
+        new LocalAppRunner().start();
     }
 
 }

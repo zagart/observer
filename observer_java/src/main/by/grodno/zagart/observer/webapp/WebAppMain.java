@@ -1,14 +1,14 @@
 package by.grodno.zagart.observer.webapp;
 
-import by.grodno.zagart.observer.webapp.classes.TcpServerRunner;
+import by.grodno.zagart.observer.webapp.classes.WepAppRunner;
 
-/**
- * Точка входа веб-приложения.
- */
 public class WebAppMain {
 
+    /**
+     * Точка входа веб-приложения.
+     */
     public static void main(String[] args) {
-        new TcpServerRunner().start();
+        new WepAppRunner().start();
     }
 
 }

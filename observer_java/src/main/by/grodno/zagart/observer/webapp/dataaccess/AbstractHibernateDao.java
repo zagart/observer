@@ -1,20 +1,19 @@
-package by.grodno.zagart.observer.webapp.dao;
+package by.grodno.zagart.observer.webapp.dataaccess;
 
 import by.grodno.zagart.observer.webapp.interfaces.Identifiable;
-import by.grodno.zagart.observer.webapp.interfaces.Loggable;
 import by.grodno.zagart.observer.webapp.interfaces.Reflective;
+import org.hibernate.query.Query;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.hibernate.query.Query;
 
 import static by.grodno.zagart.observer.webapp.utils.HibernateUtil.getCurrentSession;
 
 /**
- * Абстрактный класс является единицей класса DAO. Наследование
+ * Абстрактный класс является единицей класса dataaccess. Наследование
  * от этого класса с соответствующими параметрами позволяет
  * не переписывать большинство шаблонных методов отдельно для
  * каждого класса. Это возможно благодаря использованию механизма
@@ -30,7 +29,7 @@ import static by.grodno.zagart.observer.webapp.utils.HibernateUtil.getCurrentSes
 public abstract class AbstractHibernateDao
                      <T extends Identifiable,
                      PK extends Serializable>
-                     implements GenericDao<T, PK>, Loggable, Reflective {
+                     implements GenericDao<T, PK>, Reflective {
 
     private final T entityObj;
 

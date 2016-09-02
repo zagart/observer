@@ -1,9 +1,9 @@
 package by.grodno.zagart.observer.localapp.network;
 
 
-import by.grodno.zagart.observer.localapp.interfaces.Loggable;
 import by.grodno.zagart.observer.localapp.interfaces.SerialProtocol;
 import gnu.io.*;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,9 @@ import java.util.concurrent.ArrayBlockingQueue;
  * Oracle имеет свою имплемантацию этой библиотеки, однако она
  * не поддерживает ОС Windows.
  */
-public class SerialReceiver extends Thread implements Loggable {
+public class SerialReceiver extends Thread {
+
+    public static Logger logger = Logger.getLogger(SerialReceiver.class);
 
     private SerialPort port;
     private CommPortIdentifier identifier;
@@ -32,6 +34,18 @@ public class SerialReceiver extends Thread implements Loggable {
     private final int speed;
     private Queue<String> inbox = new ArrayBlockingQueue<>(Byte.MAX_VALUE);
 
+    /**
+     * Конструктор класса создает новый объект, ассоциированный с последовательным
+     * портом в соответствии с указанным именем порта и протоколом.
+     *
+     * @param portName Имя COM-порта.
+     * @param protocol Протокол передачи данных через последовательный порт.
+     * @throws NoSuchPortException
+     * @throws PortInUseException
+     * @throws IOException
+     * @throws UnsupportedCommOperationException
+     * @throws TooManyListenersException
+     */
     public SerialReceiver(String portName, SerialProtocol protocol) throws NoSuchPortException,
             PortInUseException,
             IOException,
@@ -51,6 +65,10 @@ public class SerialReceiver extends Thread implements Loggable {
         waitData();
     }
 
+    /**
+     * Метод читает данные с последовательного порта и обрабатывает их
+     * в соответствии с протоколом и складывает в объект этого класса ArrayBlockingQueue.
+     */
     private synchronized void waitData() {
         try {
             List<Integer> data;
@@ -76,6 +94,14 @@ public class SerialReceiver extends Thread implements Loggable {
         }
     }
 
+    /**
+     * Метод читает байты из потока, связанного с последовательным портом,
+     * в том случае, если в потоке есть байты в количестве значения поля
+     * bufferSize, доступные для чтения.
+     *
+     * @return Возвращает List считанных байтов.
+     * @throws IOException
+     */
     private List<Integer> readBytes() throws IOException {
         List<Integer> bytes = new ArrayList<>();
         int value;
@@ -88,6 +114,13 @@ public class SerialReceiver extends Thread implements Loggable {
         return bytes;
     }
 
+    /**
+     * Метод читает один байт из потока, связанного с последовательным портом.
+     *
+     * @return Считанный байт (значение от 0 до 255) либо -1, если произошла
+     * исключительная ситуация ввода/вывода.
+     * @throws IOException
+     */
     private int readByte() throws IOException {
         if (input != null) {
             try {
@@ -102,6 +135,11 @@ public class SerialReceiver extends Thread implements Loggable {
         return -1;
     }
 
+    /**
+     * Метод конфигурирует COM-порт.
+     *
+     * @throws UnsupportedCommOperationException
+     */
     private void portInit() throws UnsupportedCommOperationException {
         port.setSerialPortParams(speed,
                 SerialPort.DATABITS_8,
@@ -111,6 +149,16 @@ public class SerialReceiver extends Thread implements Loggable {
         port.setRTS(true);
     }
 
+
+    /**
+     * Метод извлекает список доступных последовательных портов и ищет порт,
+     * указанный в параметрах и, если находит - устанавливает его портом этого
+     * объекта.
+     *
+     * @param portName Имя искомого порта.
+     * @throws NoSuchPortException
+     * @throws PortInUseException
+     */
     private void findPort(String portName) throws NoSuchPortException, PortInUseException {
         Enumeration ports = CommPortIdentifier.getPortIdentifiers();
         while (ports.hasMoreElements()) {
@@ -125,6 +173,12 @@ public class SerialReceiver extends Thread implements Loggable {
         }
     }
 
+    /**
+     * Метод возвращает одно из полученных и обработанных сообщений (head), но при этом
+     * удаляет его из хранилища.
+     *
+     * @return Обработанное сообщение COM-порта.
+     */
     public String pullMessage() {
         if (!inbox.isEmpty()) {
             return inbox.poll();

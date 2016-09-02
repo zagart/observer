@@ -1,6 +1,7 @@
 package by.grodno.zagart.observer.webapp.network;
 
 import by.grodno.zagart.observer.webapp.interfaces.Closeable;
+import org.apache.log4j.Logger;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -11,13 +12,13 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
- * Класс, отвечающий за сетевое соединение на стороне
+ * Класс, отвечающий за сетевое TCP соединение на стороне
  * сервера. Наследует интерфейс Closeable, который упрощает
- * освобождение ресурсов. Интерфейс Closeable также наследует
- * интерфейс Loggable, что позволяет и данному классу также
- * использовать логгер.
+ * освобождение ресурсов.
  */
 public class TcpListener extends Thread implements Closeable {
+
+    public static final Logger logger = Logger.getLogger(TcpListener.class);
 
     private Socket socket;
     private static int clientsQuantity = 0;
@@ -25,6 +26,15 @@ public class TcpListener extends Thread implements Closeable {
     private PrintWriter output;
     private Queue<Object> storage = new ArrayBlockingQueue<>(Byte.MAX_VALUE);
 
+    /**
+     * При создании объекта конструктор требует объект класса Socket,
+     * являющийся сокетом, запросившим соединение. Так как такой объект
+     * можно получить только после установления соединения, сразу получаем
+     * входящий/исходящий потоки данных.
+     *
+     * @param socket Сокет клиента.
+     * @throws IOException
+     */
     public TcpListener(Socket socket) throws IOException {
         super("TcpListener");
         this.socket = socket;
@@ -33,26 +43,41 @@ public class TcpListener extends Thread implements Closeable {
         clientsQuantity++;
     }
 
+    /**
+     * Возвращает статическую целочисленную переменную, которая содержит количество
+     * активных соединений.
+     *
+     * @return Количество соединений (подключенных клиентов).
+     */
     public static int getClientsQuantity() {
         return clientsQuantity;
     }
 
     @Override
     public void run() {
-        processRun();
+        waitInputObject();
     }
 
+    /**
+     * Метод освобождения ресурсов. После его выполнения объект этого класса
+     * прекращает выполнять свои функции.
+     */
     @Override
     public void close() {
         closeCloseable(input);
         closeCloseable(output);
         closeCloseable(socket);
+        clientsQuantity--;
     }
 
-    private synchronized void processRun() {
+    /**
+     * Метод ждет получения объекта от сокета клиента. До тех пор, пока поток данных
+     * активен, то и метод будет ждать объекты и складывать их в FIFO-хранилище.
+     */
+    private synchronized void waitInputObject() {
         try {
             output.println("ready");
-            while (true) {
+            while (input != null) {
                 Object obj;
                 if ((obj = readObject()) != null) {
                     storage.offer(obj);
@@ -78,6 +103,14 @@ public class TcpListener extends Thread implements Closeable {
         }
     }
 
+    /**
+     * Метод считывает объект с потока данных (потока-объекта класса input).
+     *
+     * @return Считанный объект либо null, если считывать нечего.
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws InterruptedException
+     */
     private Object readObject() throws IOException, ClassNotFoundException, InterruptedException {
         try {
             return input.readObject();
@@ -89,6 +122,13 @@ public class TcpListener extends Thread implements Closeable {
         }
     }
 
+    /**
+     * Метод вытягивает объект из FIFO-хранилища объекта и возвращает его, но при этом
+     * из хранилища объект также удаляется!
+     *
+     * @return Первый объект FIFO-хранилища storage (объект класса ArrayBlockingQueue)
+     * либо null, если в хранилище пусто.
+     */
     public Object pullObject() {
         if (!storage.isEmpty()) {
             return storage.poll();

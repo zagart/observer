@@ -1,8 +1,8 @@
 package by.grodno.zagart.observer.webapp.entities;
 
 import by.grodno.zagart.observer.webapp.interfaces.Identifiable;
-import by.grodno.zagart.observer.webapp.interfaces.Loggable;
 import by.grodno.zagart.observer.webapp.utils.DataUtil;
+import org.apache.log4j.Logger;
 
 import javax.persistence.*;
 import java.io.IOException;
@@ -17,7 +17,9 @@ import java.util.Properties;
  */
 @Entity
 @Table(name = "STAND")
-public class Stand implements Identifiable<Long>, Loggable, Serializable {
+public class Stand implements Identifiable<Long>, Serializable {
+
+    public static final Logger logger = Logger.getLogger(Stand.class);
 
     private static final long serialVersionUID = 2L;
 
